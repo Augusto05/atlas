@@ -5,7 +5,7 @@ from datetime import date
 import calendar
 import plotly.express as px
 
-st.set_page_config(pazxczge_title="Calculadora Comissão", layout="wide")
+st.set_page_config(page_title="Calculadora de Comissão", layout="wide")
 st.title("Cálculo de Comissão e Projeções")
 
 # ---------- Constantes internas (fixas) ----------
