@@ -1,0 +1,106 @@
+credentials:
+  usernames:
+    augusto:
+      email: augustoalmeida@b4bcapital.com.br
+      name: Augusto Bueno
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: operador   
+    andrey:
+      email: andreybizao@b4bcapital.com.br
+      name: Andrey Bizao
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: master        
+    francianecordeiro:
+      email: francianecordeiro@b4bcapital.com.br
+      name: Franciane Roberta Cordeiro
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: operador  
+    mariasilva:
+      email: mariasilva@b4bcapital.com.br
+      name: Maria Luisa Ribeiro da Silva
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: operador  
+    giovanasilva:
+      email: giovanasilva@b4bcapital.com.br
+      name: Giovana Vitoria da Silva
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: operador  
+    viniciussilva:
+      email: viniciussilva@b4bcapital.com.br
+      name: Vinicius Araujo Silva
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: operador  
+    amandabosco:
+      email: amandabosco@b4bcapital.com.br
+      name: Amanda Kachinski Bosco
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: operador  
+    marianabarboza:
+      email: marianabarboza@b4bcapital.com.br
+      name: Mariana Gabriela Ferreira Barboza
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: operador  
+    sofiadomingues:
+      email: sofiadomingues@b4bcapital.com.br
+      name: Sofia Helena Vieira Domingues
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: operador  
+    miriamfranzoi:
+      email: miriamfranzoi@b4bcapital.com.br
+      name: Miriam Helena Franzoi
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: operador  
+    brunacarvalho:
+      email: brunacarvalho@b4bcapital.com.br
+      name: Bruna Eloisa Sousa Carvalho
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: operador  
+    cristianeandrade:
+      email: cristianeandrade@b4bcapital.com.br
+      name: Cristiane dos Santos Andrade
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: operador  
+    jessicaleme:
+      email: jessicaleme@b4bcapital.com.br
+      name: Jessica Lorenzetto Leme
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: operador  
+    pablolopes:
+      email: pablolopes@b4bcapital.com.br
+      name: Pablo Ricardo Camilo Lopes
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: operador  
+    sophiapigente:
+      email: sophiapigente@b4bcapital.com.br
+      name: Sophia Bagagi Pigente
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: operador  
+    nicolasmoraes:
+      email: nicolasmoraes@b4bcapital.com.br
+      name: Nicolas Lopes de Moraes
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: operador 
+    felipemartelo:
+      email: felipemartelo@b4bcapital.com.br
+      name: Felipe Arantes Martelo
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: operador 
+    jhonatanalonso:
+      email: jhonatanalonso@b4bcapital.com.br
+      name: Jhonatan Vinicius de Paula Alonso
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: operador 
+    douglaspimentel:
+      email: douglaspimentel@b4bcapital.com.br
+      name: Douglas Ricardo Rodrigues Modesto Pimentel
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: operador 
+    emanueleseiscentos:
+      email: emanueleseiscentos@b4bcapital.com.br
+      name: Emanuele Balister Seiscentos
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: operador 
+cookie:
+  name: comissao_app
+  key: abcdefghijklmnop
+  expiry_days: 30
