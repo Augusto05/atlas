@@ -46,18 +46,46 @@ elif authentication_status:
     st.sidebar.success(f"Logado como: {name}")
     user_role = config['credentials']['usernames'][username].get('role', 'operador')
 
-    # ---------- Carregar dados do Excel hospedado no GitHub ----------
-    EXCEL_URL = "https://github.com/devsb4b-web/atlas/raw/refs/heads/main/atlas/producao.xlsx"
-    df = pd.read_excel(EXCEL_URL)
+    # ---------- Lista de meses disponíveis ----------
+    meses_disponiveis = [
+        "2025-10",
+        "2025-11",
+        "2025-12"
+    ]
+
+    # ---------- Seleção de mês ----------
+    mes_selecionado = st.sidebar.selectbox("📅 Selecione o mês", options=meses_disponiveis)
+
+    # ---------- Carregar dados do Excel correspondente ----------
+    EXCEL_URL_BASE = "https://github.com/Augusto05/atlas/raw/refs/heads/main/first-atlas/"
+    EXCEL_URL = f"{EXCEL_URL_BASE}producao_{mes_selecionado}.xlsx"
+
+    try:
+        df = pd.read_excel(EXCEL_URL, dtype={"CNPJ": str})
+    except Exception as e:
+        st.error(f"Erro ao carregar o arquivo do mês selecionado: {e}")
+        st.stop()
+
     df.columns = df.columns.str.strip().str.upper()
     df["DATA_BASE"] = pd.to_datetime(df["DATA_BASE"], errors="coerce")
     df["MES"] = df["DATA_BASE"].dt.to_period("M").astype(str)
 
     # ---------- Filtro por usuário e mês ----------
-    df_user = df[df["CONSULTOR"].str.lower() == name.lower()].copy()
-    meses_disponiveis = sorted(df_user["MES"].unique(), reverse=True)
-    mes_selecionado = st.sidebar.selectbox("📅 Selecione o mês", options=meses_disponiveis)
+    df_user = df[df["CONSULTOR"].str.strip().str.lower() == name.strip().lower()].copy()
     df_mes = df_user[df_user["MES"] == mes_selecionado]
+    def normalizar_status(valor):
+        v = str(valor).strip().upper()
+        if v == "APROVADA":
+            return "Aprovada"
+        elif v in ["ANÁLISE", "PENDÊNCIA DOC", "AINDA NAO INICIOU A ABERTURA DE CONTA"]:
+            return "Analise"
+        elif v in ["CARIMBADA", "REPROVADA", "INVÁLIDA"]:
+            return "Outras"
+        else:
+            return "Outras"
+
+    df_mes["STATUS_PADRONIZADO"] = df_mes["STATUS_ABERTURA"].apply(normalizar_status)
+
 
     # ---------- Sidebar: meta e ranking ----------
     st.sidebar.markdown("## 📊 Projeções e Comissão")
@@ -115,8 +143,24 @@ elif authentication_status:
         return max(total, 0)
 
     # ---------- Métricas ----------
-    total_aprovadas = df_mes[df_mes["STATUS_ABERTURA"] == "Aprovada"].shape[0]
-    analise_input = df_mes[df_mes["STATUS_ABERTURA"] == "Analise"].shape[0]
+    total_aprovadas = df_mes[df_mes["STATUS_PADRONIZADO"] == "Aprovada"].shape[0]
+    analise_input = df_mes[df_mes["STATUS_PADRONIZADO"] == "Analise"].shape[0]
+    nao_iniciadas = df_mes[df_mes["STATUS_ABERTURA"].str.upper().str.strip() == "AINDA NAO INICIOU A ABERTURA DE CONTA"].shape[0]
+    pendencias_doc = df_mes[df_mes["STATUS_ABERTURA"].str.upper().str.strip() == "PENDÊNCIA DOC"].shape[0]
+    avisos = []
+    if nao_iniciadas > 0:
+        if nao_iniciadas == 1:
+            avisos.append(f"Você possui **{nao_iniciadas}** conta que ainda não iniciou a abertura.")
+        else:
+            avisos.append(f"Você possui **{nao_iniciadas}** contas que ainda não iniciaram a abertura.")
+    if pendencias_doc > 0:
+        if pendencias_doc == 1:
+            avisos.append(f"Você possui **{pendencias_doc}** conta em pendência de documentação.")
+        else:
+            avisos.append(f"Você possui **{pendencias_doc}** contas em pendência de documentação.")
+
+    if avisos:
+        st.info("  \n".join(avisos))
     hoje = date.today()
     if mes_selecionado:
         ano, mes = map(int, mes_selecionado.split("-"))
@@ -140,15 +184,15 @@ elif authentication_status:
 
     hoje_dt = pd.to_datetime(hoje)
     inicio_semana = hoje_dt - pd.Timedelta(days=hoje_dt.weekday())
-    producao_hoje = df_mes[(df_mes["DATA_BASE"].dt.date == hoje) & df_mes["STATUS_ABERTURA"].isin(["Aprovada", "Analise"])].shape[0]
-    producao_semana = df_mes[(df_mes["DATA_BASE"] >= inicio_semana) & (df_mes["DATA_BASE"] <= hoje_dt) & (df_mes["STATUS_ABERTURA"] == "Aprovada")].shape[0]
+    producao_hoje = df_mes[(df_mes["DATA_BASE"].dt.date == hoje) & df_mes["STATUS_PADRONIZADO"].isin(["Aprovada", "Analise"])].shape[0]
+    producao_semana = df_mes[(df_mes["DATA_BASE"] >= inicio_semana) & (df_mes["DATA_BASE"] <= hoje_dt) & (df_mes["STATUS_PADRONIZADO"] == "Aprovada")].shape[0]
 
     # ---------- Resumo Rápido ----------
     st.title("📊 Dashboard de Produção")
     st.markdown("### Resumo Rápido")
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("Contas aprovadas", total_aprovadas)
-    col2.metric("Produção de hoje", producao_hoje)
+    col2.metric("Contas em análise", analise_input)
     col3.metric("Produção esta semana", producao_semana)
     col4.metric("Dias úteis restantes", dias_uteis_restantes)
 
@@ -162,7 +206,14 @@ elif authentication_status:
 
     # ---------- Tabela de contas ----------
     st.subheader("Minhas Contas")
-    st.dataframe(df_mes[["DATA_BASE", "CNPJ", "NOME_CLIENTE", "ORIGEM", "STATUS_ABERTURA"]], use_container_width=True)
+    df_mes["DATA_BASE"] = df_mes["DATA_BASE"].dt.strftime("%d/%m/%Y")
+    df_display = df_mes[["DATA_BASE", "CNPJ", "NOME_CLIENTE", "ORIGEM", "STATUS_ABERTURA"]].copy()
+    df_display["DATA_BASE"] = pd.to_datetime(df_display["DATA_BASE"], errors="coerce").dt.strftime("%d/%m/%Y")
+    # Criar coluna de posição e ocultar índice visual
+    df_display.reset_index(drop=True, inplace=True)
+    df_display.index = df_display.index + 1
+
+    st.dataframe(df_display.style.hide(axis="index"), use_container_width=True)
 
     # ---------- Gráficos ----------
     st.markdown("### Análise rápida")
@@ -177,7 +228,7 @@ elif authentication_status:
     fig_origin.update_traces(textposition="inside", textinfo="percent+label")
 
     aprovadas_cnt = total_aprovadas
-    outras_cnt = df_mes[df_mes["STATUS_ABERTURA"] != "Aprovada"].shape[0]
+    outras_cnt = df_mes[df_mes["STATUS_PADRONIZADO"] != "Aprovada"].shape[0]
 
     fig_conv = px.pie(
         names=["Aprovadas", "Outras"],
