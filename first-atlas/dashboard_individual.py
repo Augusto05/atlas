@@ -50,11 +50,66 @@ elif authentication_status:
     meses_disponiveis = [
         "2025-10",
         "2025-11",
-        "2025-12"
     ]
 
+    # ---------- Lista de feriados ----------
+    def _to_date_obj(dt):
+        if pd.isna(dt):
+            return None
+        if isinstance(dt, date) and not isinstance(dt, datetime):
+            return dt
+        if isinstance(dt, datetime):
+            return dt.date()
+        if isinstance(dt, pd.Timestamp):
+            return dt.to_pydatetime().date()
+        try:
+            return pd.to_datetime(dt).date()
+        except Exception:
+            return None
+
+    # Função principal para cálculo de dias úteis incluindo o último dia
+    def dias_uteis_inclusive(start_dt, end_dt, feriados=None):
+        fer = feriados or []
+        s = _to_date_obj(start_dt)
+        e = _to_date_obj(end_dt)
+        if s is None or e is None or s > e:
+            return 0
+        start_np = np.datetime64(s)
+        end_next_np = np.datetime64(e) + np.timedelta64(1, "D")
+        total = int(np.busday_count(start_np, end_next_np))
+        for f in fer:
+            f_date = _to_date_obj(f)
+            if f_date and s <= f_date <= e and np.is_busday(np.datetime64(f_date)):
+                total -= 1
+        return max(total, 0)
+
+    # Feriados fixos válidos para São Paulo
+    FERIADOS = [
+        date(2026, 1, 1),   # Confraternização Universal
+        date(2026, 1, 25),  # Aniversário de SP
+        date(2026, 2, 17),  # Carnaval
+        date(2026, 4, 21),  # Tiradentes
+        date(2026, 5, 1),   # Dia do Trabalho
+        date(2026, 7, 9),   # Revolução Constitucionalista
+        date(2026, 9, 7),   # Independência
+        date(2026, 10, 12), # Nossa Senhora Aparecida
+        date(2026, 11, 2),  # Finados
+        date(2026, 11, 15), # Proclamação da República
+        date(2025, 11, 20), # Consciência Negra
+        date(2025, 12, 25), # Natal
+    ]
+
+
     # ---------- Seleção de mês ----------
-    mes_selecionado = st.sidebar.selectbox("📅 Selecione o mês", options=meses_disponiveis)
+    mes_atual = datetime.today().strftime("%Y-%m")
+    mes_selecionado = st.sidebar.selectbox(
+        "📅 Selecione o mês",
+        options=meses_disponiveis,
+        index=meses_disponiveis.index(mes_atual) if mes_atual in meses_disponiveis else 0
+    )
+    mes_eh_atual = mes_selecionado == mes_atual
+
+
 
     # ---------- Carregar dados do Excel correspondente ----------
     EXCEL_URL_BASE = "https://github.com/Augusto05/atlas/raw/refs/heads/main/first-atlas/"
@@ -71,8 +126,12 @@ elif authentication_status:
     df["MES"] = df["DATA_BASE"].dt.to_period("M").astype(str)
 
     # ---------- Filtro por usuário e mês ----------
-    df_user = df[df["CONSULTOR"].str.strip().str.lower() == name.strip().lower()].copy()
-    df_mes = df_user[df_user["MES"] == mes_selecionado]
+    if user_role == "master":
+        df_mes = df[df["MES"] == mes_selecionado].copy()
+    else:
+        df_user = df[df["CONSULTOR"].str.strip().str.lower() == name.strip().lower()].copy()
+        df_mes = df_user[df_user["MES"] == mes_selecionado]
+
     def normalizar_status(valor):
         v = str(valor).strip().upper()
         if v == "APROVADA":
@@ -89,9 +148,13 @@ elif authentication_status:
 
     # ---------- Sidebar: meta e ranking ----------
     st.sidebar.markdown("## 📊 Projeções e Comissão")
-    equipe = st.sidebar.selectbox("Equipe", options=["URA", "DISCADOR", "Outro"], index=0)
-    meta_default = 80 if equipe == "URA" else 60
-    meta_atual = st.sidebar.number_input("Meta atual (contas/mês)", min_value=1, value=meta_default, step=1)
+    if user_role == "master":
+        meta_atual = st.sidebar.number_input("Meta atual (contas/mês)", min_value=1, value=1600, step=1)
+    else:
+        equipe = st.sidebar.selectbox("Equipe", options=["URA", "DISCADOR", "Outro"], index=0)
+        meta_default = 80 if equipe == "URA" else 60
+        meta_atual = st.sidebar.number_input("Meta atual (contas/mês)", min_value=1, value=meta_default, step=1)
+        
     estou_no_ranking = st.sidebar.checkbox("Estou no ranking?", value=False)
     pos_ranking = st.sidebar.selectbox("Se sim, qual posição?", options=["1", "2", "3", "Outro"], index=0) if estou_no_ranking else None
     pos_ranking = pos_ranking if pos_ranking in ["1", "2", "3"] else None
@@ -144,20 +207,29 @@ elif authentication_status:
 
     # ---------- Métricas ----------
     total_aprovadas = df_mes[df_mes["STATUS_PADRONIZADO"] == "Aprovada"].shape[0]
-    analise_input = df_mes[df_mes["STATUS_PADRONIZADO"] == "Analise"].shape[0]
+    if user_role == "master":
+        analise_input = df_mes[df_mes["STATUS_ABERTURA"].str.upper().str.strip() == "ANÁLISE"].shape[0]
+    else:
+        analise_input = df_mes[df_mes["STATUS_PADRONIZADO"] == "Analise"].shape[0]
+
     nao_iniciadas = df_mes[df_mes["STATUS_ABERTURA"].str.upper().str.strip() == "AINDA NAO INICIOU A ABERTURA DE CONTA"].shape[0]
     pendencias_doc = df_mes[df_mes["STATUS_ABERTURA"].str.upper().str.strip() == "PENDÊNCIA DOC"].shape[0]
+    contas_invalidas = df_mes[
+        df_mes["STATUS_ABERTURA"].str.upper().str.strip().isin(["INVÁLIDA", "REPROVADA", "AINDA NAO INICIOU A ABERTURA DE CONTA"])
+    ].shape[0]
+
     avisos = []
-    if nao_iniciadas > 0:
-        if nao_iniciadas == 1:
-            avisos.append(f"Você possui **{nao_iniciadas}** conta que ainda não iniciou a abertura.")
-        else:
-            avisos.append(f"Você possui **{nao_iniciadas}** contas que ainda não iniciaram a abertura.")
-    if pendencias_doc > 0:
-        if pendencias_doc == 1:
-            avisos.append(f"Você possui **{pendencias_doc}** conta em pendência de documentação.")
-        else:
-            avisos.append(f"Você possui **{pendencias_doc}** contas em pendência de documentação.")
+    if user_role != "master":
+        if nao_iniciadas > 0:
+            if nao_iniciadas == 1:
+                avisos.append(f"Você possui **{nao_iniciadas}** conta que ainda não iniciou a abertura.")
+            else:
+                avisos.append(f"Você possui **{nao_iniciadas}** contas que ainda não iniciaram a abertura.")
+        if pendencias_doc > 0:
+            if pendencias_doc == 1:
+                avisos.append(f"Você possui **{pendencias_doc}** conta em pendência de documentação.")
+            else:
+                avisos.append(f"Você possui **{pendencias_doc}** contas em pendência de documentação.")
 
     if avisos:
         st.info("  \n".join(avisos))
@@ -169,10 +241,17 @@ elif authentication_status:
     else:
         st.warning("Nenhum mês disponível para visualização.")
         st.stop()
+
+    ano = datetime.today().year
+    mes = datetime.today().month
     inicio_mes = date(ano, mes, 1)
     fim_mes = date(ano, mes, calendar.monthrange(ano, mes)[1])
-    dias_uteis_total = dias_uteis_inclusive(inicio_mes, fim_mes)
-    dias_uteis_passados = dias_uteis_inclusive(inicio_mes, min(hoje, fim_mes))
+    hoje_date = date.today() - timedelta(days=1)
+
+
+    # Cálculo dos dias úteis
+    dias_uteis_total = dias_uteis_inclusive(inicio_mes, fim_mes, FERIADOS)
+    dias_uteis_passados = dias_uteis_inclusive(inicio_mes, min(hoje_date, fim_mes), FERIADOS)
     dias_uteis_restantes = max(dias_uteis_total - dias_uteis_passados, 0)
     elapsed_business = dias_uteis_passados if dias_uteis_passados > 0 else 1
 
@@ -190,30 +269,100 @@ elif authentication_status:
     # ---------- Resumo Rápido ----------
     st.title("📊 Dashboard de Produção")
     st.markdown("### Resumo Rápido")
+
     col1, col2, col3, col4 = st.columns(4)
-    col1.metric("Contas aprovadas", total_aprovadas)
-    col2.metric("Contas em análise", analise_input)
-    col3.metric("Produção esta semana", producao_semana)
-    col4.metric("Dias úteis restantes", dias_uteis_restantes)
+    if user_role == "master":
+        col1.metric("Contas aprovadas", total_aprovadas)
+        col2.metric("Contas em análise", analise_input)
+        col3.metric("Contas com pendência", f"{int(round(pendencias_doc))}")
+        col4.metric("Contas inválidas", contas_invalidas)
+    else:
+        col1.metric("Contas aprovadas", total_aprovadas)
+        col2.metric("Contas em análise", analise_input)
+        col3.metric("Produção esta semana", producao_semana if mes_eh_atual else "-")
+        col4.metric("Dias úteis restantes", dias_uteis_restantes if mes_eh_atual else "-")
 
     col5, col6, col7, col8 = st.columns(4)
-    col5.metric("Projeção (sem análise)", f"{int(round(projecao_sem_bonus))} contas")
-    col6.metric("Projeção (com análise)", f"{int(round(projecao_com_analise))} contas")
-    col7.metric("Comissão estimada (R$)", f"R$ {res_sem['comissao_total']:,.2f}")
-    col8.metric("Atingimento projetado", f"{res_sem['atingimento']*100:.1f}%")
+    if user_role == "master":
+        col5.metric("Projeção (com análise)", f"{int(round(projecao_com_analise))} contas" if mes_eh_atual else "-")
+        col6.metric("Atingimento projetado", f"{res_sem['atingimento']*100:.1f}%" if mes_eh_atual else "-")
+        col7.metric("Dias úteis restantes", dias_uteis_restantes if mes_eh_atual else "-")
+        col8.metric("Produção esta semana", producao_semana if mes_eh_atual else "-")
+       
+    else:
+        col5.metric("Projeção (sem análise)", f"{int(round(projecao_sem_bonus))} contas" if mes_eh_atual else "-")
+        col6.metric("Projeção (com análise)", f"{int(round(projecao_com_analise))} contas" if mes_eh_atual else "-")
+        col7.metric("Comissão estimada (R$)", f"R$ {res_sem['comissao_total']:,.2f}" if mes_eh_atual else "-") 
+        col8.metric("Atingimento projetado", f"{res_sem['atingimento']*100:.1f}%" if mes_eh_atual else "-")
 
     st.markdown("---")
 
+     #----------- Ranking de Contas Aprovadas ----------
+    
+    if user_role == "master":
+        st.subheader("Ranking")
+
+        # Filtra apenas contas com status APROVADA ou ANÁLISE
+        df_abertas = df_mes[
+            df_mes["STATUS_ABERTURA"].str.upper().str.strip().isin(["APROVADA", "ANÁLISE"])
+        ]
+
+        # Agrupa por consultor e conta
+        ranking_abertas = (
+            df_abertas.groupby("CONSULTOR")
+            .size()
+            .reset_index(name="Contas Abertas")
+            .sort_values(by="Contas Abertas", ascending=False)
+            .reset_index(drop=True)
+        )
+
+        ranking_abertas.index = ranking_abertas.index + 1  # Começa em 1
+
+        st.dataframe(
+            ranking_abertas.style.hide(axis="index"),
+            use_container_width=True,
+            height=250  # ajuste conforme necessário
+        )
+
+        st.markdown("---")
+
     # ---------- Tabela de contas ----------
-    st.subheader("Minhas Contas")
-    df_mes["DATA_BASE"] = df_mes["DATA_BASE"].dt.strftime("%d/%m/%Y")
-    df_display = df_mes[["DATA_BASE", "CNPJ", "NOME_CLIENTE", "ORIGEM", "STATUS_ABERTURA"]].copy()
-    df_display["DATA_BASE"] = pd.to_datetime(df_display["DATA_BASE"], errors="coerce").dt.strftime("%d/%m/%Y")
-    # Criar coluna de posição e ocultar índice visual
+    
+    st.subheader("Minhas Contas" if user_role != "master" else "Todas as Contas")
+    if user_role == "master":
+        df_exibicao = df_mes.copy()
+    else:
+        df_exibicao = df_mes[df_mes["CONSULTOR"] == name].copy()
+
+   # Formatação da coluna de data
+    df_exibicao["DATA_BASE"] = pd.to_datetime(df_exibicao["DATA_BASE"], errors="coerce")
+    df_exibicao["DATA_BASE"] = df_exibicao["DATA_BASE"].dt.strftime("%d/%m/%Y")
+
+    # Selecionar colunas para exibição
+    if user_role == "master":
+        colunas_exibidas = [ "DATA_BASE", "CNPJ", "NOME_CLIENTE", "CONSULTOR", "ORIGEM", "STATUS_ABERTURA"]
+    else:
+        colunas_exibidas = ["DATA_BASE", "CNPJ", "NOME_CLIENTE", "ORIGEM", "STATUS_ABERTURA"]
+    df_display = df_exibicao[colunas_exibidas].copy()
+
+    # Resetar índice e ocultar visualmente
     df_display.reset_index(drop=True, inplace=True)
     df_display.index = df_display.index + 1
 
-    st.dataframe(df_display.style.hide(axis="index"), use_container_width=True)
+    # Exibir tabela
+    if user_role == "master":
+        estilo_colunas = {
+            "NOME_CLIENTE": [{"selector": "td", "props": [("max-width", "90px"), ("white-space", "nowrap"), ("overflow", "hidden"), ("text-overflow", "ellipsis")]}],
+            "CONSULTOR": [{"selector": "td", "props": [("max-width", "120px"), ("white-space", "nowrap"), ("overflow", "hidden"), ("text-overflow", "ellipsis")]}],  
+        }
+        st.dataframe(
+            df_display.style.set_table_styles(estilo_colunas, overwrite=False).hide(axis="index"),
+            use_container_width=True
+        )
+    else:
+        st.dataframe(df_display.style.hide(axis="index"), use_container_width=True)
+
+    st.markdown("---")
 
     # ---------- Gráficos ----------
     st.markdown("### Análise rápida")

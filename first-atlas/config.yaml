@@ -1,15 +1,30 @@
 credentials:
   usernames:
-    augusto:
+    augustobueno.b4b:
       email: augustoalmeida@b4bcapital.com.br
       name: Augusto Bueno
       password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
-      role: operador   
-    andrey:
+      role: master   
+    andreybizao.b4b:
       email: andreybizao@b4bcapital.com.br
       name: Andrey Bizao
       password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
-      role: master        
+      role: master   
+    wesleyfaian.b4b:
+      email: wesley@b4bcapital.com.br
+      name: Wesley Valentim Ferreira Faian
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: master 
+    leticiapena.b4b:
+      email: leticiapena@b4bcapital.com.br
+      name: Leticia Viviane Carvalho da Pena
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: master     
+    felipesilva.b4b:
+      email: felipesilva@b4bcapital.com.br
+      name: Felipe Luis Silva
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: master     
     francianecordeiro:
       email: francianecordeiro@b4bcapital.com.br
       name: Franciane Roberta Cordeiro
