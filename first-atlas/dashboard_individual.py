@@ -222,7 +222,8 @@ elif authentication_status:
         ating = contas / meta_safe
         unit = faixa_unitario(ating)
         acel = multiplicador_acelerador(ating)
-        comissao = contas * unit * acel
+        contas_real = int(contas)  # força inteiro
+        comissao = contas_real * unit * acel
         bonus = BONUS_POS.get(pos, 0) if inclui_bonus and pos in BONUS_POS else 0
         return {
             "comissao_total": comissao + bonus,
@@ -272,7 +273,7 @@ elif authentication_status:
 
     if avisos:
         st.info("  \n".join(avisos))
-    hoje = date.today()
+    hoje = date.today() - timedelta(days=1)
     if mes_selecionado:
         ano, mes = map(int, mes_selecionado.split("-"))
         inicio_mes = date(ano, mes, 1)
