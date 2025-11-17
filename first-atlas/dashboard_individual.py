@@ -148,16 +148,55 @@ elif authentication_status:
 
     # ---------- Sidebar: meta e ranking ----------
     st.sidebar.markdown("## 📊 Projeções e Comissão")
+
+    user_config = config["credentials"]["usernames"][username]
+    user_role = user_config.get("role", "operador")
+    equipe_default = user_config.get("equipe", "URA")
+
+    # Metas padrão definidas no código
+    meta_padrao = {"URA": 80, "DISCADOR": 60}
+
+    # Se for OUTRO, pega meta do YAML; senão usa padrão
+    meta_default = (
+        user_config.get("meta", 60) if equipe_default == "PERSONALIZADO"
+        else meta_padrao.get(equipe_default, 60)
+    )
+
     if user_role == "master":
-        meta_atual = st.sidebar.number_input("Meta atual (contas/mês)", min_value=1, value=1600, step=1)
+        meta_atual = st.sidebar.number_input(
+            "Meta atual (contas/mês)",
+            min_value=1,
+            value=1600,
+            step=1
+        )
     else:
-        equipe = st.sidebar.selectbox("Equipe", options=["URA", "DISCADOR", "Outro"], index=0)
-        meta_default = 80 if equipe == "URA" else 60
-        meta_atual = st.sidebar.number_input("Meta atual (contas/mês)", min_value=1, value=meta_default, step=1)
-        
-    estou_no_ranking = st.sidebar.checkbox("Estou no ranking?", value=False)
-    pos_ranking = st.sidebar.selectbox("Se sim, qual posição?", options=["1", "2", "3", "Outro"], index=0) if estou_no_ranking else None
-    pos_ranking = pos_ranking if pos_ranking in ["1", "2", "3"] else None
+        equipe = st.sidebar.selectbox(
+            "Equipe",
+            options=["URA", "DISCADOR", "PERSONALIZADO"],
+            index=["URA","DISCADOR","PERSONALIZADO"].index(equipe_default)
+        )
+
+        # Sempre exibe o campo de meta
+        meta_atual = st.sidebar.number_input(
+            "Meta atual (contas/mês)",
+            min_value=1,
+            value=(
+                user_config.get("meta", 60) if equipe == "PERSONALIZADO"
+                else meta_padrao.get(equipe, 60)
+            ),
+            step=1
+        )
+
+
+            
+    estou_no_ranking = False
+    pos_ranking = None
+    if(user_role != "master"):
+        estou_no_ranking = st.sidebar.checkbox("Estou no ranking?", value=False)
+        pos_ranking = st.sidebar.selectbox("Se sim, qual posição?", options=["1", "2", "3", "Outro"], index=0) if estou_no_ranking else None
+        pos_ranking = pos_ranking if pos_ranking in ["1", "2", "3"] else None
+    
+    
 
     # ---------- Funções de projeção ----------
     VAL_80_90 = 5
@@ -304,7 +343,7 @@ elif authentication_status:
 
         # Filtra apenas contas com status APROVADA ou ANÁLISE
         df_abertas = df_mes[
-            df_mes["STATUS_ABERTURA"].str.upper().str.strip().isin(["APROVADA", "ANÁLISE"])
+            df_mes["STATUS_ABERTURA"].str.upper().str.strip().isin(["APROVADA"])
         ]
 
         # Agrupa por consultor e conta
@@ -374,7 +413,11 @@ elif authentication_status:
         hole=0.35,
         color_discrete_sequence=px.colors.sequential.Blues[4:]
     )
-    fig_origin.update_traces(textposition="inside", textinfo="percent+label")
+    fig_origin.update_traces(
+        textposition="inside", 
+        textinfo="percent+label",
+        hovertemplate="<b>Origem:</b> %{label}<br><b>Contas:</b> %{value}<extra></extra>"
+    )
 
     aprovadas_cnt = total_aprovadas
     outras_cnt = df_mes[df_mes["STATUS_PADRONIZADO"] != "Aprovada"].shape[0]
@@ -386,7 +429,11 @@ elif authentication_status:
         hole=0.4,
         color_discrete_sequence=px.colors.sequential.Blues[4:]
     )
-    fig_conv.update_traces(textposition="inside", textinfo="percent+label")
+    fig_conv.update_traces(
+        textposition="inside",
+        textinfo="percent+label",
+        hovertemplate="<b>Status:</b> %{label}<br><b>Contas:</b> %{value}<extra></extra>"
+    )
 
     c1, c2 = st.columns(2)
     with c1:
@@ -394,10 +441,33 @@ elif authentication_status:
     with c2:
         st.plotly_chart(fig_conv, use_container_width=True)
 
+    # ---------- Gráfico PDU -----------
+    df_aprovadas = df_mes[df_mes["STATUS_PADRONIZADO"] == "Aprovada"]
+    df_aprovadas["DIA_UTIL"] = df_aprovadas["DATA_BASE"].dt.strftime("%d/%m")
+    if user_role != "master":
+        df_aprovadas = df_aprovadas[df_aprovadas["CONSULTOR"] == name]
+    pdu_diario = (
+        df_aprovadas.groupby("DIA_UTIL")
+        .size()
+        .reset_index(name="Contas Aprovadas")
+        .sort_values("DIA_UTIL")
+    )
+    st.subheader("PDU – Contas Aprovadas por Dia Útil")
+
+    fig_pdu = px.bar(
+        pdu_diario,
+        x="DIA_UTIL",
+        y="Contas Aprovadas",
+        labels={"DIA_UTIL": "Dia útil", "Contas Aprovadas": "Contas"},
+        title="Produção diária",
+        color_discrete_sequence=["#2b8cbe"]
+    )
+    st.plotly_chart(fig_pdu, use_container_width=True)
+
     # ---------- Gráfico de ritmo vs meta ----------
     st.subheader("Gráfico de Ritmo vs Meta")
     days = np.arange(1, dias_uteis_total + 1)
-    ritmo_atual = (total_aprovadas / elapsed_business) if elapsed_business > 0 else 0
+    ritmo_atual = ((total_aprovadas + analise_input) / elapsed_business) if elapsed_business > 0 else 0
     cumulativo_ritmo = ritmo_atual * days
     meta_line = np.linspace(0, meta_atual, num=len(days))
     df_line = pd.DataFrame({

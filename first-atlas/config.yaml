@@ -30,91 +30,109 @@ credentials:
       name: Franciane Roberta Cordeiro
       password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
       role: operador  
+      equipe: URA
     mariasilva:
       email: mariasilva@b4bcapital.com.br
       name: Maria Luisa Ribeiro da Silva
       password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
-      role: operador  
+      role: operador
+      equipe: URA  
     giovanasilva:
       email: giovanasilva@b4bcapital.com.br
       name: Giovana Vitoria da Silva
       password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
-      role: operador  
+      role: operador 
+      equipe: URA 
     viniciussilva:
       email: viniciussilva@b4bcapital.com.br
       name: Vinicius Araujo Silva
       password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
-      role: operador  
+      role: operador
+      equipe: URA  
     amandabosco:
       email: amandabosco@b4bcapital.com.br
       name: Amanda Kachinski Bosco
       password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
-      role: operador  
+      role: operador 
+      equipe: URA 
     marianabarboza:
       email: marianabarboza@b4bcapital.com.br
       name: Mariana Gabriela Ferreira Barboza
       password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
-      role: operador  
+      role: operador 
+      equipe: URA 
     sofiadomingues:
       email: sofiadomingues@b4bcapital.com.br
       name: Sofia Helena Vieira Domingues
       password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
       role: operador  
+      equipe: URA
     miriamfranzoi:
       email: miriamfranzoi@b4bcapital.com.br
       name: Miriam Helena Franzoi
       password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
       role: operador  
+      equipe: URA
     brunacarvalho:
       email: brunacarvalho@b4bcapital.com.br
       name: Bruna Eloisa Sousa Carvalho
       password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
       role: operador  
+      equipe: URA
     cristianeandrade:
       email: cristianeandrade@b4bcapital.com.br
       name: Cristiane dos Santos Andrade
       password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
-      role: operador  
+      role: operador
+      equipe: DISCADOR  
     jessicaleme:
       email: jessicaleme@b4bcapital.com.br
       name: Jessica Lorenzetto Leme
       password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
-      role: operador  
+      role: operador
+      equipe: DISCADOR    
     pablolopes:
       email: pablolopes@b4bcapital.com.br
       name: Pablo Ricardo Camilo Lopes
       password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
-      role: operador  
+      role: operador
+      equipe: DISCADOR
     sophiapigente:
       email: sophiapigente@b4bcapital.com.br
       name: Sophia Bagagi Pigente
       password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
-      role: operador  
+      role: operador 
+      equipe: DISCADOR
     nicolasmoraes:
       email: nicolasmoraes@b4bcapital.com.br
       name: Nicolas Lopes de Moraes
       password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
-      role: operador 
+      role: operador
+      equipe: DISCADOR
     felipemartelo:
       email: felipemartelo@b4bcapital.com.br
       name: Felipe Arantes Martelo
       password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
-      role: operador 
+      role: operador
+      equipe: DISCADOR 
     jhonatanalonso:
       email: jhonatanalonso@b4bcapital.com.br
       name: Jhonatan Vinicius de Paula Alonso
       password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
       role: operador 
-    douglaspimentel:
-      email: douglaspimentel@b4bcapital.com.br
-      name: Douglas Ricardo Rodrigues Modesto Pimentel
-      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
-      role: operador 
+      equipe: DISCADOR
     emanueleseiscentos:
       email: emanueleseiscentos@b4bcapital.com.br
       name: Emanuele Balister Seiscentos
       password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: operador
+      equipe: DISCADOR
+    yurisales:
+      email: yurisales@b4bcapital.com.br
+      name: Yuri Costa Cataia de Sales
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
       role: operador 
+      equipe: DISCADOR
 cookie:
   name: comissao_app
   key: abcdefghijklmnop
