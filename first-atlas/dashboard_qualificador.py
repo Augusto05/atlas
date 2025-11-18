@@ -259,7 +259,7 @@ def exibir_dashboard(user_config: dict):
             names="STATUS",
             values="QTD",
             title="Distribuição por Status",
-            color_discrete_sequence=px.colors.sequential.Blues  # tons progressivos de azul
+            color_discrete_sequence=px.colors.sequential.Blues[3:] # tons progressivos de azul
         )
         st.plotly_chart(fig_status, use_container_width=True)
 
@@ -280,7 +280,7 @@ def exibir_dashboard(user_config: dict):
                 text="QTD",
                 title="Perfis do balde",
                 color="PERFIL M",
-                color_discrete_sequence=px.colors.sequential.Blues  # tons progressivos de azul
+                color_discrete_sequence=px.colors.sequential.Blues[4:]  # tons progressivos de azul
             )
             fig_perfil.update_traces(textposition="outside")
             st.plotly_chart(fig_perfil, use_container_width=True)
@@ -288,6 +288,8 @@ def exibir_dashboard(user_config: dict):
     # ---------------------------
     # 3. PDU - Qualificadas por dia útil (linha azul)
     # ---------------------------
+    df_consultor["DT_QUALIFICADA"] = pd.to_datetime(df_consultor["DT_QUALIFICADA"], errors="coerce")
+
     if "DT_QUALIFICADA" in df_consultor.columns:
         df_pdu = df_consultor[df_consultor["STATUS"] == STATUS_QUALIFICADO].copy()
         df_pdu["DT_QUALIFICADA"] = pd.to_datetime(df_pdu["DT_QUALIFICADA"], errors="coerce").dt.date
