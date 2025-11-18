@@ -162,6 +162,7 @@ def exibir_dashboard(user_config: dict):
     faturamento_total = float(df_consultor.loc[df_consultor["STATUS"] == STATUS_QUALIFICADO, "PREVISAO"].sum())
     balde_total = int(df_consultor.shape[0])
 
+    st.subheader("Resumo Rápido")
     col1, col2, col3, col4, col5, col6 = st.columns(6)
     col1.metric("Contas qualificadas", f"{qtd_qualificadas}")
     col2.metric("Saldo médio", f"{qtd_saldo_medio}")
@@ -201,9 +202,16 @@ def exibir_dashboard(user_config: dict):
         df_prom = selecionar_colunas_padrao(df_prom)
         st.dataframe(formatar_tabela(df_prom, "#FFF9E6"), use_container_width=True)
 
+    # Tabela 4: Novos critérios (expandível)
+    st.subheader("Novos critérios")
+    with st.expander("Mostrar/ocultar novos critérios", expanded=False):
+        df_novos = df_consultor[df_consultor["STATUS"].str.startswith("NOVO CRITÉRIO", na=False)]
+        df_novos = selecionar_colunas_padrao(df_novos)
+        st.dataframe(formatar_tabela(df_novos, "#F2F2F2"), use_container_width=True)
+
     st.divider()
 
-    # Tabela 4: Balde completo
+    # Tabela 5: Balde completo
     st.subheader("Balde completo de clientes")
     df_balde = selecionar_colunas_padrao(df_consultor)
     st.dataframe(formatar_tabela(df_balde, "#FFFFFF"), use_container_width=True)
