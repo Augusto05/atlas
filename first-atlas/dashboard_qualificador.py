@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 from datetime import date, datetime
 import calendar
+import plotly.express as px
 
 # ---------------------------
 # Configurações fixas
@@ -126,9 +127,9 @@ def selecionar_colunas_padrao(df: pd.DataFrame) -> pd.DataFrame:
 # ---------------------------
 # Dashboard principal
 # ---------------------------
-
 def exibir_dashboard(user_config: dict):
-    st.title("📊 Dashboard - Equipe de Qualificação")
+    
+    st.title("📊 Dashboard - Qualificação")
 
     url_arquivo = "https://github.com/Augusto05/atlas/raw/refs/heads/main/first-atlas/balde_2025-11.xlsx"
 
@@ -162,6 +163,34 @@ def exibir_dashboard(user_config: dict):
     faturamento_total = float(df_consultor.loc[df_consultor["STATUS"] == STATUS_QUALIFICADO, "PREVISAO"].sum())
     balde_total = int(df_consultor.shape[0])
 
+    # ---------------------------
+    # Sidebar com metas e indicadores
+    st.sidebar.header("🎯 Metas e indicadores")
+    META_PADRAO = 120
+
+    # Meta atual
+    equipe = user_config.get("equipe", "").upper()
+    if equipe == "PERSONALIZADO":
+        meta_atual = int(user_config.get("meta", META_PADRAO))  # meta definida no config.yaml
+    else:
+        meta_atual = META_PADRAO
+    st.sidebar.text_input("Meta atual", value=str(meta_atual))
+
+    # ICM (Índice de Cumprimento da Meta)
+    icm = 0
+    if meta_atual > 0:
+        icm = (qtd_qualificadas / meta_atual) * 100
+    st.sidebar.text_input("ICM", value=f"{icm:.1f}%")  # agora editável
+
+    # Média de qualificação por dia
+    dias_passados = dias_uteis_passados_no_mes(date.today(), FERIADOS_FIXOS)
+    media_por_dia = 0
+    if dias_passados > 0:
+        media_por_dia = qtd_qualificadas / dias_passados
+    st.sidebar.text_input("Média por dia", value=f"{media_por_dia:.2f}")  # agora editável
+
+
+
     st.subheader("Resumo Rápido")
     col1, col2, col3, col4, col5, col6 = st.columns(6)
     col1.metric("Contas qualificadas", f"{qtd_qualificadas}")
@@ -180,6 +209,7 @@ def exibir_dashboard(user_config: dict):
         (df_consultor["CASH_IN_ATUAL"] < 6000) &
         (df_consultor["STATUS"] != STATUS_QUALIFICADO)
     ]
+    df_prestes = df_prestes.sort_values(by="CASH_IN_ATUAL", ascending=False)
     df_prestes = selecionar_colunas_padrao(df_prestes)
     st.dataframe(formatar_tabela(df_prestes, "#E7F0FF"), use_container_width=True)
 
@@ -210,7 +240,77 @@ def exibir_dashboard(user_config: dict):
         st.dataframe(formatar_tabela(df_novos, "#F2F2F2"), use_container_width=True)
 
     st.divider()
+    st.subheader(" Dashboards")
 
+    # Colunas lado a lado
+    col1, col2 = st.columns(2)
+
+    # ---------------------------
+    # 1. Distribuição por Status (gráfico de pizza em tons de azul)
+    # ---------------------------
+    with col1:
+        status_counts = df_consultor["STATUS"].value_counts()
+        status_df = pd.DataFrame({
+            "STATUS": status_counts.index,
+            "QTD": status_counts.values
+        })
+        fig_status = px.pie(
+            status_df,
+            names="STATUS",
+            values="QTD",
+            title="Distribuição por Status",
+            color_discrete_sequence=px.colors.sequential.Blues  # tons progressivos de azul
+        )
+        st.plotly_chart(fig_status, use_container_width=True)
+
+    # ---------------------------
+    # 2. Perfis do balde (M0, M1, M2) - gráfico de barras em tons de azul
+    # ---------------------------
+    with col2:
+        if "PERFIL M" in df_consultor.columns:
+            perfil_counts = df_consultor["PERFIL M"].value_counts()
+            perfil_df = pd.DataFrame({
+                "PERFIL M": perfil_counts.index,
+                "QTD": perfil_counts.values
+            })
+            fig_perfil = px.bar(
+                perfil_df,
+                x="PERFIL M",
+                y="QTD",
+                text="QTD",
+                title="Perfis do balde",
+                color="PERFIL M",
+                color_discrete_sequence=px.colors.sequential.Blues  # tons progressivos de azul
+            )
+            fig_perfil.update_traces(textposition="outside")
+            st.plotly_chart(fig_perfil, use_container_width=True)
+
+    # ---------------------------
+    # 3. PDU - Qualificadas por dia útil (linha azul)
+    # ---------------------------
+    if "DT_QUALIFICADA" in df_consultor.columns:
+        df_pdu = df_consultor[df_consultor["STATUS"] == STATUS_QUALIFICADO].copy()
+        df_pdu["DT_QUALIFICADA"] = pd.to_datetime(df_pdu["DT_QUALIFICADA"], errors="coerce").dt.date
+
+        # Agrupa por dia útil
+        pdu_counts = df_pdu.groupby("DT_QUALIFICADA").size().reset_index(name="Qualificadas")
+
+        # Remove finais de semana e feriados
+        pdu_counts = pdu_counts[
+            pdu_counts["DT_QUALIFICADA"].apply(lambda d: d.weekday() < 5 and d not in FERIADOS_FIXOS)
+        ]
+
+        fig_pdu = px.line(
+            pdu_counts,
+            x="DT_QUALIFICADA",
+            y="Qualificadas",
+            title="Qualificadas por dia útil",
+            markers=True,
+            line_shape="linear",
+            color_discrete_sequence=["#1f77b4"]  # azul padrão
+        )
+        st.plotly_chart(fig_pdu, use_container_width=True)
+    
     # Tabela 5: Balde completo
     st.subheader("Balde completo de clientes")
     df_balde = selecionar_colunas_padrao(df_consultor)
