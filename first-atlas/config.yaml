@@ -4,7 +4,7 @@ credentials:
       email: augustoalmeida@b4bcapital.com.br
       name: Augusto Bueno
       password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
-      role: master   
+      role: qualificador   
     andreybizao.b4b:
       email: andreybizao@b4bcapital.com.br
       name: Andrey Bizao
