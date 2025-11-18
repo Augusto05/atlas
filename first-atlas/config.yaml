@@ -25,8 +25,6 @@ credentials:
       name: Felipe Luis Silva
       password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
       role: master     
-    credentials:
-  usernames:
     aghata.santos:
       email: aghata.santos@b4bcapital.com.br
       name: Aghata Alves dos Santos
@@ -54,7 +52,7 @@ credentials:
       role: qualificador
     julio.vilchez:
       email: julio.vilchez@b4bcapital.com.br
-      name: Julio Gonçalves Zarate Vilchez
+      name: Julio Goncalves Zarate Vilchez
       password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
       role: qualificador
     luana.paulo:

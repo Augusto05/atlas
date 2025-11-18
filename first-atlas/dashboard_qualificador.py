@@ -5,6 +5,7 @@ import numpy as np
 from datetime import date, datetime
 import calendar
 import plotly.express as px
+from pandas.io.formats.style import Styler
 
 # ---------------------------
 # Configurações fixas
@@ -83,8 +84,11 @@ def calcular_projecao(qtd_qualificadas_so_far: int, referencia: date, feriados: 
     ritmo_diario = qtd_qualificadas_so_far / uteis_passados
     return ritmo_diario * uteis_totais
 
-def formatar_tabela(df: pd.DataFrame, cor_hex: str) -> pd.io.formats.style.Styler:
+def formatar_tabela(df: pd.DataFrame, cor_hex: str) -> Styler:
     df = df.copy().reset_index(drop=True)
+
+    #Formata CNPJ
+    df["CNPJ_CLIENTE"] = df["CNPJ_CLIENTE"].astype(str).str.zfill(14)
 
     # Formata datas
     campos_data = [col for col in df.columns if "DT_" in col or "DATA_" in col or col == "C6_PAY"]

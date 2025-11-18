@@ -51,7 +51,7 @@ elif authentication_status:
         # se for qualificador, renderiza o outro dashboard
         dashboard_qualificador.exibir_dashboard(config['credentials']['usernames'][username])
     else:
-
+        
         # ---------- Lista de meses disponíveis ----------
         meses_disponiveis = [
             "2025-10",
