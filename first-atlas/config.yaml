@@ -4,7 +4,7 @@ credentials:
       email: augustoalmeida@b4bcapital.com.br
       name: Augusto Bueno
       password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
-      role: qualificador   
+      role: master   
     andreybizao.b4b:
       email: andreybizao@b4bcapital.com.br
       name: Andrey Bizao
@@ -25,6 +25,54 @@ credentials:
       name: Felipe Luis Silva
       password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
       role: master     
+    credentials:
+  usernames:
+    aghata.santos:
+      email: aghata.santos@b4bcapital.com.br
+      name: Aghata Alves dos Santos
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: qualificador
+    akemi.paccola:
+      email: akemi.paccola@b4bcapital.com.br
+      name: Akemi Satomi Paccola
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: qualificador
+    allana.bonfim:
+      email: allana.bonfim@b4bcapital.com.br
+      name: Allana Julia Ferreira Bonfim
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: qualificador
+    isaac.campos:
+      email: isaac.campos@b4bcapital.com.br
+      name: Isaac Miguel da Silva Campos
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: qualificador
+    joao.oliveira:
+      email: joao.oliveira@b4bcapital.com.br
+      name: Joao Pedro Mayer Ribeiro Oliveira
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: qualificador
+    julio.vilchez:
+      email: julio.vilchez@b4bcapital.com.br
+      name: Julio Gonçalves Zarate Vilchez
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: qualificador
+    luana.paulo:
+      email: luana.paulo@b4bcapital.com.br
+      name: Luana Duarte Paulo
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: qualificador
+    luiz.leite:
+      email: luiz.leite@b4bcapital.com.br
+      name: Luiz Augusto Bucharelli da Graca Leite
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: qualificador
+    ricardo.caetano:
+      email: ricardo.caetano@b4bcapital.com.br
+      name: Ricardo Cirino Mendes Caetano
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: qualificador
+
     francianecordeiro:
       email: francianecordeiro@b4bcapital.com.br
       name: Franciane Roberta Cordeiro

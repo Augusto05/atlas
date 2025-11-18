@@ -122,7 +122,7 @@ def exibir_dashboard(user_config: dict):
     st.sidebar.subheader("Fonte de dados")
     url_arquivo = st.sidebar.text_input(
         "URL da planilha (GitHub raw)",
-        value="https://raw.githubusercontent.com/SEU_USER/SEU_REPO/main/qualificacao.xlsx"
+        value="https://github.com/Augusto05/atlas/raw/refs/heads/main/first-atlas/balde_2025-11.xlsx"
     )
 
     # Config feriados
