@@ -6,7 +6,7 @@ from datetime import date, datetime
 import calendar
 
 # ---------------------------
-# Configurações e helpers
+# Configurações fixas
 # ---------------------------
 
 TABELA_COLUNAS = [
@@ -19,57 +19,58 @@ STATUS_QUALIFICADO = "QUALIFICADO"
 STATUS_SALDO_MEDIO = "SALDO_MEDIO"
 STATUS_PROMESSA = "PROMESSA"
 
+# Feriados nacionais fixos (exemplo Brasil 2025)
+FERIADOS_FIXOS = {
+    date(2026, 1, 1),   # Confraternização Universal
+    date(2026, 1, 25),  # Aniversário de SP
+    date(2026, 2, 17),  # Carnaval
+    date(2026, 4, 21),  # Tiradentes
+    date(2026, 5, 1),   # Dia do Trabalho
+    date(2026, 7, 9),   # Revolução Constitucionalista
+    date(2026, 9, 7),   # Independência
+    date(2026, 10, 12), # Nossa Senhora Aparecida
+    date(2026, 11, 2),  # Finados
+    date(2026, 11, 15), # Proclamação da República
+    date(2025, 11, 20), # Consciência Negra
+    date(2025, 12, 25), # Natal
+}
+
 # ---------------------------
-# Leitura da planilha
+# Helpers
 # ---------------------------
 
 @st.cache_data(show_spinner=False)
 def carregar_planilha(url_arquivo: str) -> pd.DataFrame:
-    """
-    Carrega planilha do GitHub (Excel ou CSV).
-    - Para Excel: requer 'openpyxl' no requirements.txt.
-    """
     if url_arquivo.lower().endswith(".csv"):
-        df = pd.read_csv(url_arquivo, dtype=str)
+        df = pd.read_csv(url_arquivo)
     else:
-        # Excel: prioriza a primeira aba
-        df = pd.read_excel(url_arquivo, dtype=str)
-    # Limpa nomes de colunas (espaços, etc.)
+        df = pd.read_excel(url_arquivo)
     df.columns = [c.strip() for c in df.columns]
     return df
 
 def to_numeric_safe(series, default=0.0):
-    return pd.to_numeric(series, errors="coerce").fillna(default)
+    return pd.to_numeric(series, errors="coerce").fillna(default).round(2)
 
 def to_date_safe(series):
-    # Converte para datetime; aceita formato brasileiro, ISO, etc.
-    return pd.to_datetime(series, errors="coerce", dayfirst=True)
-
-# ---------------------------
-# Cálculo de dias úteis e projeção
-# ---------------------------
+    return pd.to_datetime(series, errors="coerce", dayfirst=True).dt.date
 
 def dias_uteis_no_mes(referencia: date, feriados: set) -> int:
-    ano = referencia.year
-    mes = referencia.month
+    ano, mes = referencia.year, referencia.month
     _, ultimo_dia = calendar.monthrange(ano, mes)
     dias = [
         date(ano, mes, d)
         for d in range(1, ultimo_dia + 1)
-        if date(ano, mes, d).weekday() < 5  # 0-4 = seg-sex
-        and date(ano, mes, d) not in feriados
+        if date(ano, mes, d).weekday() < 5 and date(ano, mes, d) not in feriados
     ]
     return len(dias)
 
 def dias_uteis_passados_no_mes(referencia: date, feriados: set) -> int:
-    ano = referencia.year
-    mes = referencia.month
+    ano, mes = referencia.year, referencia.month
     hoje = referencia
     dias = [
         date(ano, mes, d)
-        for d in range(1, hoje.day + 1)
-        if date(ano, mes, d).weekday() < 5
-        and date(ano, mes, d) not in feriados
+        for d in range(1, hoje.day)  # até ontem
+        if date(ano, mes, d).weekday() < 5 and date(ano, mes, d) not in feriados
     ]
     return len(dias)
 
@@ -81,35 +82,46 @@ def calcular_projecao(qtd_qualificadas_so_far: int, referencia: date, feriados: 
     ritmo_diario = qtd_qualificadas_so_far / uteis_passados
     return ritmo_diario * uteis_totais
 
-# ---------------------------
-# Estilo de tabelas
-# ---------------------------
+def formatar_tabela(df: pd.DataFrame, cor_hex: str) -> pd.io.formats.style.Styler:
+    df = df.copy().reset_index(drop=True)
 
-def estilizar_tabela(df: pd.DataFrame, cor_hex: str) -> pd.io.formats.style.Styler:
-    return df.style.set_properties(**{
-        'background-color': cor_hex
-    }).set_table_styles([
-        {'selector': 'th', 'props': [('background-color', cor_hex)]}
+    # Formata datas
+    campos_data = [col for col in df.columns if "DT_" in col or "DATA_" in col or col == "C6_PAY"]
+    for col in campos_data:
+        if pd.api.types.is_datetime64_any_dtype(df[col]) or pd.api.types.is_object_dtype(df[col]):
+            df[col] = pd.to_datetime(df[col], errors="coerce").dt.strftime("%d/%m/%Y")
+
+    # Formata valores monetários e movimentações
+    campos_valores = ["CASH_IN_ATUAL", "1º_MES_MOV", "2º_MES_MOV", "3º_MES_MOV"]
+    for campo in campos_valores:
+        if campo in df.columns:
+            df[campo] = pd.to_numeric(df[campo], errors="coerce").fillna(0).round(2)
+            df[campo] = df[campo].map(lambda x: f"{x:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
+
+    # Formata FL_QUALIFICADO como inteiro
+    if "FL_QUALIFICADO" in df.columns:
+        df["FL_QUALIFICADO"] = pd.to_numeric(df["FL_QUALIFICADO"], errors="coerce").fillna(0).astype(int)
+
+    # Estilo com cor de fundo e índice pintado
+    return df.style.set_properties(**{'background-color': cor_hex}).set_table_styles([
+        {'selector': 'th', 'props': [('background-color', cor_hex)]},
+        {'selector': 'tbody th', 'props': [('background-color', cor_hex)]}
     ])
 
-# ---------------------------
-# Filtro por CONSULTOR
-# ---------------------------
+def estilizar_tabela(df: pd.DataFrame, cor_hex: str) -> pd.io.formats.style.Styler:
+    return df.style.set_properties(**{'background-color': cor_hex}).set_table_styles([
+        {'selector': 'th', 'props': [('background-color', cor_hex)]},       # cabeçalho
+        {'selector': 'tbody th', 'props': [('background-color', cor_hex)]} # índice
+    ])
 
 def filtrar_por_consultor(df: pd.DataFrame, consultor_nome: str) -> pd.DataFrame:
     if "CONSULTOR" not in df.columns:
-        st.warning("Coluna 'CONSULTOR' não encontrada na planilha.")
         return df
-    # padroniza espaços e case
     return df[df["CONSULTOR"].fillna("").str.strip().str.casefold() == consultor_nome.strip().casefold()]
-
-# ---------------------------
-# Seleção de colunas fixas
-# ---------------------------
 
 def selecionar_colunas_padrao(df: pd.DataFrame) -> pd.DataFrame:
     cols_existentes = [c for c in TABELA_COLUNAS if c in df.columns]
-    return df[cols_existentes].copy()
+    return df[cols_existentes].reset_index(drop=True)
 
 # ---------------------------
 # Dashboard principal
@@ -118,32 +130,7 @@ def selecionar_colunas_padrao(df: pd.DataFrame) -> pd.DataFrame:
 def exibir_dashboard(user_config: dict):
     st.title("📊 Dashboard - Equipe de Qualificação")
 
-    # Config entrada: URL da planilha no GitHub
-    st.sidebar.subheader("Fonte de dados")
-    url_arquivo = st.sidebar.text_input(
-        "URL da planilha (GitHub raw)",
-        value="https://github.com/Augusto05/atlas/raw/refs/heads/main/first-atlas/balde_2025-11.xlsx"
-    )
-
-    # Config feriados
-    st.sidebar.subheader("Feriados do mês")
-    st.sidebar.caption("Adicione feriados manualmente (considerados como não úteis).")
-    feriados_input = st.sidebar.date_input(
-        "Selecione feriados",
-        [],
-        help="Você pode selecionar múltiplas datas."
-    )
-    feriados_set = set(feriados_input) if isinstance(feriados_input, list) else set([feriados_input])
-
-    # Nome do consultor (do login/config.yaml)
-    consultor_nome = user_config.get("name", "").strip()
-    if not consultor_nome:
-        st.warning("Nome do usuário não encontrado no config. Filtro por CONSULTOR pode não funcionar.")
-
-    # Carregar dados
-    if not url_arquivo:
-        st.info("Informe a URL da planilha no GitHub para carregar os dados.")
-        return
+    url_arquivo = "https://github.com/Augusto05/atlas/raw/refs/heads/main/first-atlas/balde_2025-11.xlsx"
 
     try:
         df_raw = carregar_planilha(url_arquivo)
@@ -151,39 +138,30 @@ def exibir_dashboard(user_config: dict):
         st.error(f"Erro ao carregar a planilha: {e}")
         return
 
-    # Preparar campos
     df = df_raw.copy()
 
-    # Normaliza tipos principais usados em filtros e cálculos
-    df["STATUS"] = df["STATUS"].fillna("").str.strip().str.upper() if "STATUS" in df.columns else ""
-    df["CASH_IN_ATUAL"] = to_numeric_safe(df.get("CASH_IN_ATUAL", pd.Series(dtype=float)), default=0.0)
-    df["PREVISAO"] = to_numeric_safe(df.get("PREVISAO", pd.Series(dtype=float)), default=0.0)
+    # Normaliza campos
+    if "STATUS" in df.columns:
+        df["STATUS"] = df["STATUS"].fillna("").str.strip().str.upper()
+    df["CASH_IN_ATUAL"] = to_numeric_safe(df.get("CASH_IN_ATUAL", pd.Series(dtype=float)))
+    df["PREVISAO"] = to_numeric_safe(df.get("PREVISAO", pd.Series(dtype=float)))
 
-    # Datas que podem aparecer nas KPIs/tabelas
+
     for col in ["DT_1º_CTT", "DT_ULTIMO_CTT", "DT_QUALIFICADA", "DT_CONTA_CRIADA", "DATA_PROMESSA", "DATA_PREVISTA"]:
         if col in df.columns:
             df[col] = to_date_safe(df[col])
 
-    # Filtro por CONSULTOR
+    consultor_nome = user_config.get("name", "").strip()
     df_consultor = filtrar_por_consultor(df, consultor_nome)
 
-    # KPIs (Resumo rápido)
-    st.subheader("Resumo rápido")
-
-    # Contas qualificadas
+    # KPIs
     qtd_qualificadas = int((df_consultor["STATUS"] == STATUS_QUALIFICADO).sum())
-    # Contas em saldo médio
     qtd_saldo_medio = int((df_consultor["STATUS"] == STATUS_SALDO_MEDIO).sum())
-    # Promessas
     qtd_promessas = int((df_consultor["STATUS"] == STATUS_PROMESSA).sum())
-    # Projeção (com dias úteis + feriados)
-    proj = calcular_projecao(qtd_qualificadas, date.today(), feriados_set)
-    # Faturamento total (somar PREVISAO onde STATUS = QUALIFICADO)
+    proj = calcular_projecao(qtd_qualificadas, date.today(), FERIADOS_FIXOS)
     faturamento_total = float(df_consultor.loc[df_consultor["STATUS"] == STATUS_QUALIFICADO, "PREVISAO"].sum())
-    # Balde (total de clientes do consultor)
     balde_total = int(df_consultor.shape[0])
 
-    # Exibir métricas
     col1, col2, col3, col4, col5, col6 = st.columns(6)
     col1.metric("Contas qualificadas", f"{qtd_qualificadas}")
     col2.metric("Saldo médio", f"{qtd_saldo_medio}")
@@ -194,7 +172,7 @@ def exibir_dashboard(user_config: dict):
 
     st.divider()
 
-    # Tabela 1: Prestes a qualificar (CASH_IN_ATUAL > 1000 e < 6000; não qualificadas)
+    # Tabela 1: Prestes a qualificar
     st.subheader("Clientes prestes a qualificar")
     df_prestes = df_consultor[
         (df_consultor["CASH_IN_ATUAL"] > 1000) &
@@ -202,10 +180,8 @@ def exibir_dashboard(user_config: dict):
         (df_consultor["STATUS"] != STATUS_QUALIFICADO)
     ]
     df_prestes = selecionar_colunas_padrao(df_prestes)
-    st.dataframe(
-        estilizar_tabela(df_prestes, "#E7F0FF"),  # azul claro
-        use_container_width=True
-    )
+    st.dataframe(formatar_tabela(df_prestes, "#E7F0FF"), use_container_width=True)
+
 
     st.divider()
 
@@ -213,29 +189,22 @@ def exibir_dashboard(user_config: dict):
     st.subheader("Clientes qualificados")
     df_qual = df_consultor[df_consultor["STATUS"] == STATUS_QUALIFICADO]
     df_qual = selecionar_colunas_padrao(df_qual)
-    st.dataframe(
-        estilizar_tabela(df_qual, "#E9F7EF"),  # verde claro
-        use_container_width=True
-    )
+    st.dataframe(formatar_tabela(df_qual, "#E9F7EF"), use_container_width=True)
 
     st.divider()
 
-    # Tabela 3: Promessas (expandível)
+    # Tabela 3
+        # Tabela 3: Promessas (expandível)
     st.subheader("Promessas")
     with st.expander("Mostrar/ocultar promessas", expanded=False):
         df_prom = df_consultor[df_consultor["STATUS"] == STATUS_PROMESSA]
         df_prom = selecionar_colunas_padrao(df_prom)
-        st.dataframe(
-            estilizar_tabela(df_prom, "#FFF9E6"),  # amarelo claro
-            use_container_width=True
-        )
+        st.dataframe(formatar_tabela(df_prom, "#FFF9E6"), use_container_width=True)
 
     st.divider()
 
     # Tabela 4: Balde completo
     st.subheader("Balde completo de clientes")
     df_balde = selecionar_colunas_padrao(df_consultor)
-    st.dataframe(
-        df_balde,  # balde sem fundo colorido para ficar neutro
-        use_container_width=True
-    )
+    st.dataframe(formatar_tabela(df_balde, "#FFFFFF"), use_container_width=True)
+
