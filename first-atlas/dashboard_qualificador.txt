@@ -12,7 +12,7 @@ from pandas.io.formats.style import Styler
 # ---------------------------
 
 TABELA_COLUNAS = [
-    "DT_1º_CTT", "DT_ULTIMO_CTT", "CNPJ_CLIENTE", "NOME_CLIENTE", "CONSULTOR", "DT_CONTA_CRIADA",
+    "DT_1º_CTT", "DT_ULTIMO_CTT", "CNPJ_CLIENTE", "NOME_CLIENTE", "DT_CONTA_CRIADA",
     "STATUS", "DATA_PROMESSA", "CHAVES_PIX_FORTE", "CASH_IN_ATUAL", "C6_PAY",
     "FL_QUALIFICADO", "CRITERIOS_MES_ATUAL", "1º_MES_MOV", "2º_MES_MOV", "3º_MES_MOV"
 ]
@@ -134,7 +134,6 @@ def selecionar_colunas_padrao(df: pd.DataFrame) -> pd.DataFrame:
 def exibir_dashboard(user_config: dict, authenticator):
     
     st.title("📊 Dashboard - Qualificação")
-    role = user_config.get("role", "").lower()
 
     url_arquivo = "https://github.com/Augusto05/atlas/raw/refs/heads/main/first-atlas/balde_2025-11.xlsx"
 
@@ -157,63 +156,28 @@ def exibir_dashboard(user_config: dict, authenticator):
         if col in df.columns:
             df[col] = to_date_safe(df[col])
 
-    if role == "qualificador":
-        consultor_nome = user_config.get("name", "").strip()
-        df_consultor = filtrar_por_consultor(df, consultor_nome)
-    else:
-        # 🔹 Se for MASTER → vê todos os dados
-        df_consultor = df.copy()    
+    consultor_nome = user_config.get("name", "").strip()
+    df_consultor = filtrar_por_consultor(df, consultor_nome)
+
     # KPIs
-    criterios_excluir = [
-        "CLIENTE COM CONTA BLOQUEADA",
-        "CLIENTE COM CONTA DESATIVADA",
-        "CLIENTE MEI",
-        "#N/D"
-    ]
-    df_balde_valido = df_consultor[~df_consultor["CRITERIOS_MES_ATUAL"].isin(criterios_excluir)]
-
-    if role == "master":
-        # Qualificadas: FL_QUALIFICADO = 1 e CASH_IN_ATUAL >= 6000
-        qtd_qualificadas = int(
-            df_consultor[(df_consultor["FL_QUALIFICADO"] == 1) & (df_consultor["CASH_IN_ATUAL"] >= 6000)].shape[0]
-        )
-
-        # Saldo médio: FL_QUALIFICADO = 1 e CASH_IN_ATUAL < 6000
-        qtd_saldo_medio = int(
-            df_consultor[(df_consultor["FL_QUALIFICADO"] == 1) & (df_consultor["CASH_IN_ATUAL"] < 6000)].shape[0]
-        )
-    else:
-        # Qualificador continua com a lógica antiga
-        qtd_qualificadas = int((df_consultor["STATUS"] == STATUS_QUALIFICADO).sum())
-        qtd_saldo_medio = int((df_consultor["STATUS"] == STATUS_SALDO_MEDIO).sum())
+    qtd_qualificadas = int((df_consultor["STATUS"] == STATUS_QUALIFICADO).sum())
+    qtd_saldo_medio = int((df_consultor["STATUS"] == STATUS_SALDO_MEDIO).sum())
     qtd_promessas = int((df_consultor["STATUS"] == STATUS_PROMESSA).sum())
     proj = calcular_projecao(qtd_qualificadas, date.today(), FERIADOS_FIXOS)
-    if role == "master":
-        # Faturamento: soma PREVISAO apenas das linhas qualificadas (FL_QUALIFICADO = 1)
-        faturamento_total = float(
-            df_consultor.loc[df_consultor["FL_QUALIFICADO"] == 1, "PREVISAO"].sum()
-        )
-    else:
-        # Qualificador continua com a lógica antiga
-        faturamento_total = float(
-            df_consultor.loc[df_consultor["STATUS"] == STATUS_QUALIFICADO, "PREVISAO"].sum()
-        )
-    balde_total = int(df_balde_valido.shape[0])
+    faturamento_total = float(df_consultor.loc[df_consultor["STATUS"] == STATUS_QUALIFICADO, "PREVISAO"].sum())
+    balde_total = int(df_consultor.shape[0])
 
     # ---------------------------
     # Sidebar com metas e indicadores
     st.sidebar.header("🎯 Metas e indicadores")
     META_PADRAO = 120
-    META_MES = 1200
+
     # Meta atual
-    if role == "master":
-        meta_atual = META_MES
+    equipe = user_config.get("equipe", "").upper()
+    if equipe == "PERSONALIZADO":
+        meta_atual = int(user_config.get("meta", META_PADRAO))  # meta definida no config.yaml
     else:
-        equipe = user_config.get("equipe", "").upper()
-        if equipe == "PERSONALIZADO":
-            meta_atual = int(user_config.get("meta", META_PADRAO))  # meta definida no config.yaml
-        else:
-            meta_atual = META_PADRAO
+        meta_atual = META_PADRAO
     st.sidebar.text_input("Meta atual", value=str(meta_atual))
 
     # ICM (Índice de Cumprimento da Meta)
@@ -230,14 +194,13 @@ def exibir_dashboard(user_config: dict, authenticator):
     st.sidebar.text_input("Média por dia", value=f"{media_por_dia:.2f}")  # agora editável
 
     st.subheader("Resumo Rápido")
-    col1, col2, col3, col4, col5, col6 = st.columns([1,1,1,1,1,2])
+    col1, col2, col3, col4, col5, col6 = st.columns(6)
     col1.metric("Contas qualificadas", f"{qtd_qualificadas}")
     col2.metric("Saldo médio", f"{qtd_saldo_medio}")
     col3.metric("Promessas", f"{qtd_promessas}")
     col4.metric("Projeção (dias úteis)", f"{proj:.1f}")
-    col5.metric("Balde (clientes)", f"{balde_total}")
-    col6.metric("Faturamento total (R$)", f"{faturamento_total:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
-    
+    col5.metric("Faturamento total (R$)", f"{faturamento_total:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
+    col6.metric("Balde (clientes)", f"{balde_total}")
 
     st.divider()
 
@@ -277,18 +240,6 @@ def exibir_dashboard(user_config: dict, authenticator):
         df_novos = df_consultor[df_consultor["STATUS"].str.startswith("NOVO CRITÉRIO", na=False)]
         df_novos = selecionar_colunas_padrao(df_novos)
         st.dataframe(formatar_tabela(df_novos, "#F2F2F2"), use_container_width=True)
-    
-    # Tabela 5: Contas Inválidas (expandível)
-    st.subheader("Contas inválidas")
-    with st.expander("Mostrar/ocultar contas inválidas", expanded=False):
-        CRITERIOS_INVALIDOS = [
-            "CLIENTE COM CONTA BLOQUEADA",
-            "CLIENTE COM CONTA DESATIVADA",
-            "CLIENTE MEI"
-        ]
-        df_invalidas = df_consultor[df_consultor["CRITERIOS_MES_ATUAL"].isin(CRITERIOS_INVALIDOS)]
-        df_invalidas = selecionar_colunas_padrao(df_invalidas)
-        st.dataframe(formatar_tabela(df_invalidas, "#FDEDEC"), use_container_width=True)
 
     st.divider()
     st.subheader(" Dashboards")
@@ -300,17 +251,6 @@ def exibir_dashboard(user_config: dict, authenticator):
     # 1. Distribuição por Status (gráfico de pizza em tons de azul)
     # ---------------------------
     with col1:
-        if role == "qualificador":
-            def normalizar_status(valor):
-                v = str(valor).strip().upper()
-                if "NOVO CRITÉRIO" in v:
-                    return "NOVO CRITÉRIO"
-                elif v == "":
-                    return "SEM CONTATO ESSE MÊS"
-                else:
-                    return v
-            df_consultor["STATUS"] = df_consultor["STATUS"].apply(normalizar_status)
-
         status_counts = df_consultor["STATUS"].value_counts()
         status_df = pd.DataFrame({
             "STATUS": status_counts.index,
@@ -374,50 +314,6 @@ def exibir_dashboard(user_config: dict, authenticator):
             color_discrete_sequence=["#1f77b4"]  # azul padrão
         )
         st.plotly_chart(fig_pdu, use_container_width=True)
-
-    if role == "master":
-        criterios_excluir = [
-            "CLIENTE COM CONTA BLOQUEADA",
-            "CLIENTE COM CONTA DESATIVADA",
-            "CLIENTE MEI",
-            "#N/D"
-        ]
-        df_filtrado = df[
-            (df["CONSULTOR"].str.upper() != "ORGÂNICA") &
-            (~df["CRITERIOS_MES_ATUAL"].isin(criterios_excluir))
-        ]
-        df_consultores = df_filtrado.groupby("CONSULTOR").agg(
-            BALDE=("CNPJ_CLIENTE", "count"),
-            QUALIFICADAS=("STATUS", lambda x: (x == STATUS_QUALIFICADO).sum())
-        ).reset_index()
-
-        fig_balde = px.bar(
-            df_consultores,
-            x="CONSULTOR",
-            y=["BALDE", "QUALIFICADAS"],
-            barmode="group",
-            title="Balde vs Qualificadas por Consultor",
-            color_discrete_sequence=px.colors.sequential.Blues[4:]
-        )
-        st.plotly_chart(fig_balde, use_container_width=True)
-
-        def resumo_consultor(grupo):
-            return pd.Series({
-                "QUALIFICADAS": (grupo["STATUS"] == STATUS_QUALIFICADO).sum(),
-                "SALDO_MEDIO": (grupo["STATUS"] == STATUS_SALDO_MEDIO).sum(),
-                "PROMESSAS": (grupo["STATUS"] == STATUS_PROMESSA).sum(),
-                "FATURAMENTO": grupo.loc[grupo["STATUS"] == STATUS_QUALIFICADO, "PREVISAO"].sum()
-            })
-
-        df_filtrado = df[df["CONSULTOR"].str.upper() != "ORGANICA"]
-        df_ranking = df_filtrado.groupby("CONSULTOR").apply(resumo_consultor).reset_index()
-        df_ranking = df_ranking.sort_values(by="QUALIFICADAS", ascending=False)
-        df_ranking["FATURAMENTO"] = df_ranking["FATURAMENTO"].map(lambda x: f"{x:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
-
-        st.subheader("Ranking")
-        st.dataframe(df_ranking, use_container_width=True)
-
-
     
     # Tabela 5: Balde completo
     st.subheader("Balde completo de clientes")
