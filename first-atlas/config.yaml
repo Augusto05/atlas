@@ -25,6 +25,12 @@ credentials:
       name: Felipe Luis Silva
       password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
       role: master     
+    hellenanunciacao.b4b:
+      email: hellenanunciacao@b4bcapital.com.br
+      name: Hellen Geovana Silva Anunciacao
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: master
+
     aghata.santos:
       email: aghata.santos@b4bcapital.com.br
       name: Aghata Alves dos Santos
@@ -50,6 +56,13 @@ credentials:
       name: Joao Pedro Mayer Ribeiro Oliveira
       password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
       role: qualificador
+    jose.mattos:
+      email: jose.mattos@b4bcapital.com.br
+      name: Jose Guilherme de Abreu Mattos
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: qualificador
+      equipe: PERSONALIZADO
+      meta: 90
     julio.vilchez:
       email: julio.vilchez@b4bcapital.com.br
       name: Julio Goncalves Zarate Vilchez

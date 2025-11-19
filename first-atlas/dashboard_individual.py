@@ -515,18 +515,23 @@ name, authentication_status, username = authenticator.login("Login", "main")
 
 if authentication_status is False:
     st.error("Usuário ou senha incorretos")
+
 elif authentication_status is None:
     st.warning("Por favor, insira suas credenciais")
+
 elif authentication_status:
     st.sidebar.success(f"Logado como: {name}")
     user_role = config['credentials']['usernames'][username].get('role', 'operador')
 
     if user_role == "qualificador":
-        dashboard_qualificador.exibir_dashboard(config['credentials']['usernames'][username])
+        dashboard_qualificador.exibir_dashboard(
+            config['credentials']['usernames'][username],
+            authenticator
+        )
 
     elif user_role == "master":
         visoes_disponiveis = ["Prospecção", "Qualificação"]
-        visao_padrao = "Prospecção"   # você pode definir dinamicamente se quiser
+        visao_padrao = "Prospecção"
        
         escolha = st.sidebar.selectbox(
             "Selecione a visualização:",
@@ -536,13 +541,25 @@ elif authentication_status:
         st.sidebar.markdown("---")
 
         if escolha == "Qualificação":
-            dashboard_qualificador.exibir_dashboard(config['credentials']['usernames'][username])
-            
+            dashboard_qualificador.exibir_dashboard(
+                config['credentials']['usernames'][username],
+                authenticator
+            )
         else:
             dashboard_prospeccao(config, username, name, user_role)
-  
+
     else:
         dashboard_prospeccao(config, username, name, user_role)
 
-    authenticator.logout("Sair", "sidebar")
+    authenticator.logout("Sair", "sidebar", key="logout_individual")
+
+   
+
+   
+
+
+   
+
+   
+
 

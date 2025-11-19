@@ -131,7 +131,7 @@ def selecionar_colunas_padrao(df: pd.DataFrame) -> pd.DataFrame:
 # ---------------------------
 # Dashboard principal
 # ---------------------------
-def exibir_dashboard(user_config: dict):
+def exibir_dashboard(user_config: dict, authenticator):
     
     st.title("📊 Dashboard - Qualificação")
 
@@ -192,8 +192,6 @@ def exibir_dashboard(user_config: dict):
     if dias_passados > 0:
         media_por_dia = qtd_qualificadas / dias_passados
     st.sidebar.text_input("Média por dia", value=f"{media_por_dia:.2f}")  # agora editável
-
-
 
     st.subheader("Resumo Rápido")
     col1, col2, col3, col4, col5, col6 = st.columns(6)
