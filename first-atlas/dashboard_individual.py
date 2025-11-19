@@ -26,32 +26,13 @@ st.sidebar.markdown(
     unsafe_allow_html=True
 )
 
-# ---------- Autenticação ----------
-with open('config.yaml') as file:
-    config = yaml.load(file, Loader=SafeLoader)
+@st.cache_data
+def carregar_dados(mes_selecionado):
+    EXCEL_URL_BASE = "https://github.com/Augusto05/atlas/raw/refs/heads/main/first-atlas/"
+    EXCEL_URL = f"{EXCEL_URL_BASE}producao_{mes_selecionado}.xlsx"
+    return pd.read_excel(EXCEL_URL, dtype={"CNPJ": str})
 
-authenticator = stauth.Authenticate(
-    config['credentials'],
-    config['cookie']['name'],
-    config['cookie']['key'],
-    config['cookie']['expiry_days']
-)
-
-name, authentication_status, username = authenticator.login("Login", "main")
-
-if authentication_status is False:
-    st.error("Usuário ou senha incorretos")
-elif authentication_status is None:
-    st.warning("Por favor, insira suas credenciais")
-elif authentication_status:
-    st.sidebar.success(f"Logado como: {name}")
-    user_role = config['credentials']['usernames'][username].get('role', 'operador')
-
-    if user_role == "qualificador":
-        # se for qualificador, renderiza o outro dashboard
-        dashboard_qualificador.exibir_dashboard(config['credentials']['usernames'][username])
-    else:
-        
+def dashboard_prospeccao(config, username, name, user_role):
         # ---------- Lista de meses disponíveis ----------
         meses_disponiveis = [
             "2025-10",
@@ -105,8 +86,6 @@ elif authentication_status:
             date(2025, 12, 25), # Natal
         ]
 
-
-        # ---------- Seleção de mês ----------
         mes_atual = datetime.today().strftime("%Y-%m")
         mes_selecionado = st.sidebar.selectbox(
             "📅 Selecione o mês",
@@ -114,18 +93,7 @@ elif authentication_status:
             index=meses_disponiveis.index(mes_atual) if mes_atual in meses_disponiveis else 0
         )
         mes_eh_atual = mes_selecionado == mes_atual
-
-
-
-        # ---------- Carregar dados do Excel correspondente ----------
-        EXCEL_URL_BASE = "https://github.com/Augusto05/atlas/raw/refs/heads/main/first-atlas/"
-        EXCEL_URL = f"{EXCEL_URL_BASE}producao_{mes_selecionado}.xlsx"
-
-        try:
-            df = pd.read_excel(EXCEL_URL, dtype={"CNPJ": str})
-        except Exception as e:
-            st.error(f"Erro ao carregar o arquivo do mês selecionado: {e}")
-            st.stop()
+        df = carregar_dados(mes_selecionado)
 
         df.columns = df.columns.str.strip().str.upper()
         df["DATA_BASE"] = pd.to_datetime(df["DATA_BASE"], errors="coerce")
@@ -532,5 +500,49 @@ elif authentication_status:
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
 
-        # ---------- Logout ----------
+# ---------- Autenticação ----------
+with open('config.yaml') as file:
+    config = yaml.load(file, Loader=SafeLoader)
+
+authenticator = stauth.Authenticate(
+    config['credentials'],
+    config['cookie']['name'],
+    config['cookie']['key'],
+    config['cookie']['expiry_days']
+)
+
+name, authentication_status, username = authenticator.login("Login", "main")
+
+if authentication_status is False:
+    st.error("Usuário ou senha incorretos")
+elif authentication_status is None:
+    st.warning("Por favor, insira suas credenciais")
+elif authentication_status:
+    st.sidebar.success(f"Logado como: {name}")
+    user_role = config['credentials']['usernames'][username].get('role', 'operador')
+
+    if user_role == "qualificador":
+        dashboard_qualificador.exibir_dashboard(config['credentials']['usernames'][username])
+
+    elif user_role == "master":
+        visoes_disponiveis = ["Prospecção", "Qualificação"]
+        visao_padrao = "Prospecção"   # você pode definir dinamicamente se quiser
+       
+        escolha = st.sidebar.selectbox(
+            "Selecione a visualização:",
+            options=visoes_disponiveis,
+            index=visoes_disponiveis.index(visao_padrao) if visao_padrao in visoes_disponiveis else 0
+        )
+        st.sidebar.markdown("---")
+
+        if escolha == "Qualificação":
+            dashboard_qualificador.exibir_dashboard(config['credentials']['usernames'][username])
+            
+        else:
+            dashboard_prospeccao(config, username, name, user_role)
+  
+    else:
+        dashboard_prospeccao(config, username, name, user_role)
+
     authenticator.logout("Sair", "sidebar")
+
