@@ -76,13 +76,22 @@ def dias_uteis_passados_no_mes(referencia: date, feriados: set) -> int:
     ]
     return len(dias)
 
-def calcular_projecao(qtd_qualificadas_so_far: int, referencia: date, feriados: set) -> float:
+def calcular_projecao(qtd_qualificadas_so_far: int, referencia: date, feriados: set, qtd_saldo_medio: int = 0, role: str = "qualificador") -> float:
+    # Se for master, soma qualificadas + saldo médio
+    if role.lower() == "master":
+        qtd_total = qtd_qualificadas_so_far + qtd_saldo_medio
+    else:
+        qtd_total = qtd_qualificadas_so_far
+
     uteis_totais = dias_uteis_no_mes(referencia, feriados)
     uteis_passados = dias_uteis_passados_no_mes(referencia, feriados)
+
     if uteis_passados == 0 or uteis_totais == 0:
-        return float(qtd_qualificadas_so_far)
-    ritmo_diario = qtd_qualificadas_so_far / uteis_passados
+        return float(qtd_total)
+
+    ritmo_diario = qtd_total / uteis_passados
     return ritmo_diario * uteis_totais
+
 
 def formatar_tabela(df: pd.DataFrame, cor_hex: str) -> Styler:
     df = df.copy().reset_index(drop=True)
@@ -187,7 +196,7 @@ def exibir_dashboard(user_config: dict, authenticator):
         qtd_qualificadas = int((df_consultor["STATUS"] == STATUS_QUALIFICADO).sum())
         qtd_saldo_medio = int((df_consultor["STATUS"] == STATUS_SALDO_MEDIO).sum())
     qtd_promessas = int((df_consultor["STATUS"] == STATUS_PROMESSA).sum())
-    proj = calcular_projecao(qtd_qualificadas, date.today(), FERIADOS_FIXOS)
+    proj = calcular_projecao(qtd_qualificadas, date.today(), FERIADOS_FIXOS, qtd_saldo_medio, role)
     if role == "master":
         # Faturamento: soma PREVISAO apenas das linhas qualificadas (FL_QUALIFICADO = 1)
         faturamento_total = float(
@@ -410,8 +419,9 @@ def exibir_dashboard(user_config: dict, authenticator):
             })
 
         df_filtrado = df[df["CONSULTOR"].str.upper() != "ORGANICA"]
-        df_ranking = df_filtrado.groupby("CONSULTOR").apply(resumo_consultor).reset_index()
-        df_ranking = df_ranking.sort_values(by="QUALIFICADAS", ascending=False)
+        df_ranking = df_filtrado.groupby("CONSULTOR").apply(resumo_consultor)
+        df_ranking = df_ranking.sort_values(by="QUALIFICADAS", ascending=False).reset_index()
+        df_ranking.index = range(1, len(df_ranking) + 1)
         df_ranking["FATURAMENTO"] = df_ranking["FATURAMENTO"].map(lambda x: f"{x:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
 
         st.subheader("Ranking")
