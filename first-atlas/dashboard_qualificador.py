@@ -406,7 +406,7 @@ def exibir_dashboard(user_config: dict, authenticator):
             y=["BALDE", "QUALIFICADAS"],
             barmode="group",
             title="Balde vs Qualificadas por Consultor",
-            color_discrete_sequence=px.colors.sequential.Blues[4:]
+            color_discrete_sequence=px.colors.sequential.Purples[4:]
         )
         st.plotly_chart(fig_balde, use_container_width=True)
 
