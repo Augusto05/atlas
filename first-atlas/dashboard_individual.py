@@ -375,6 +375,25 @@ def dashboard_prospeccao(config, username, name, user_role):
         else:
             st.dataframe(df_display.style.hide(axis="index"), use_container_width=True)
 
+
+
+        # --- Tabela de pendências DOC ---
+        with st.expander("Clientes com Pendência de Documentos"):
+            # Filtrar apenas os clientes com status PENDENCIA DOC
+            df_pendencias = df_exibicao[df_exibicao["STATUS_ABERTURA"] == "PENDENCIA DOC"].copy()
+
+            # Selecionar colunas para exibição
+            colunas_pendencias = ["DATA_BASE", "CNPJ", "NOME_CLIENTE", "PENDENCIAS"]
+            df_pendencias_display = df_pendencias[colunas_pendencias].copy()
+
+            # Resetar índice para exibição
+            df_pendencias_display.reset_index(drop=True, inplace=True)
+            df_pendencias_display.index = df_pendencias_display.index + 1
+
+            # Exibir tabela
+            st.dataframe(df_pendencias_display.style.hide(axis="index"), use_container_width=True)
+
+
         st.markdown("---")
 
         # ---------- Gráficos ----------
