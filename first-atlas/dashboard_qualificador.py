@@ -12,7 +12,7 @@ from pandas.io.formats.style import Styler
 # ---------------------------
 
 TABELA_COLUNAS = [
-    "DT_1º_CTT", "DT_ULTIMO_CTT", "CNPJ_CLIENTE", "NOME_CLIENTE", "CONSULTOR", "DT_CONTA_CRIADA",
+    "DT_1º_CTT", "DT_ULTIMO_CTT", "CNPJ_CLIENTE", "NOME_CLIENTE", "TELEFONE_MASTER", "CONSULTOR", "DT_CONTA_CRIADA",
     "STATUS", "DATA_PROMESSA", "CHAVES_PIX_FORTE", "CASH_IN_ATUAL", "C6_PAY",
     "FL_QUALIFICADO", "CRITERIOS_MES_ATUAL", "1º_MES_MOV", "2º_MES_MOV", "3º_MES_MOV"
 ]
@@ -280,14 +280,21 @@ def exibir_dashboard(user_config: dict, authenticator):
         df_prom = selecionar_colunas_padrao(df_prom)
         st.dataframe(formatar_tabela(df_prom, "#FFF9E6"), use_container_width=True)
 
-    # Tabela 4: Novos critérios (expandível)
+    # Tabela 4: Saldos médios (expandível)
+    st.subheader("Saldos médios")
+    with st.expander("Mostrar/ocultar saldos médios", expanded=False):
+        df_medios = df_consultor[df_consultor["STATUS"] == STATUS_SALDO_MEDIO]
+        df_medios = selecionar_colunas_padrao(df_medios)
+        st.dataframe(formatar_tabela(df_medios, "#EFFFFE"), use_container_width=True)
+
+    # Tabela 5: Novos critérios (expandível)
     st.subheader("Novos critérios")
     with st.expander("Mostrar/ocultar novos critérios", expanded=False):
         df_novos = df_consultor[df_consultor["STATUS"].str.startswith("NOVO CRITÉRIO", na=False)]
         df_novos = selecionar_colunas_padrao(df_novos)
         st.dataframe(formatar_tabela(df_novos, "#F2F2F2"), use_container_width=True)
     
-    # Tabela 5: Contas Inválidas (expandível)
+    # Tabela 6: Contas Inválidas (expandível)
     st.subheader("Contas inválidas")
     with st.expander("Mostrar/ocultar contas inválidas", expanded=False):
         CRITERIOS_INVALIDOS = [
@@ -298,6 +305,8 @@ def exibir_dashboard(user_config: dict, authenticator):
         df_invalidas = df_consultor[df_consultor["CRITERIOS_MES_ATUAL"].isin(CRITERIOS_INVALIDOS)]
         df_invalidas = selecionar_colunas_padrao(df_invalidas)
         st.dataframe(formatar_tabela(df_invalidas, "#FDEDEC"), use_container_width=True)
+    
+ 
 
     st.divider()
     st.subheader(" Dashboards")
@@ -318,7 +327,32 @@ def exibir_dashboard(user_config: dict, authenticator):
                     return "SEM CONTATO ESSE MÊS"
                 else:
                     return v
+        
             df_consultor["STATUS"] = df_consultor["STATUS"].apply(normalizar_status)
+        elif role == "master":
+            def normalizar_status(row):
+                # captura status e consultor com segurança
+                status_raw = row.get("STATUS", "")
+                consultor_raw = row.get("CONSULTOR", "")
+
+                v = str(status_raw).strip().upper()
+                consultor = str(consultor_raw).strip()
+
+                # unificar inválidos
+                if "NOVO CRITÉRIO" in v or "INVÁLIDO" in v:
+                    return "INVÁLIDO"
+
+                # vazio -> decidir por consultor
+                if v == "" or pd.isna(status_raw):
+                    if consultor != "" and not pd.isna(consultor_raw):
+                        return "SEM CONTATO ESSE MÊS"
+                    else:
+                        return "SEM QUALIFICADOR"
+
+                # mantém o status original normalizado
+                return v
+
+            df_consultor["STATUS"] = df_consultor.apply(normalizar_status, axis=1)
 
         status_counts = df_consultor["STATUS"].value_counts()
         status_df = pd.DataFrame({

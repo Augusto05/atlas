@@ -161,7 +161,6 @@ def dashboard_prospeccao(config, username, name, user_role):
                 step=1
             )
 
-
                 
         estou_no_ranking = False
         pos_ranking = None
