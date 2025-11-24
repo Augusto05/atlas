@@ -341,6 +341,9 @@ def exibir_dashboard(user_config: dict, authenticator):
                 # unificar inválidos
                 if "NOVO CRITÉRIO" in v or "INVÁLIDO" in v:
                     return "INVÁLIDO"
+                
+                if v == "SEM CONTATO":
+                    return "ORGÂNICA"
 
                 # vazio -> decidir por consultor
                 if v == "" or pd.isna(status_raw):
