@@ -380,7 +380,7 @@ def dashboard_prospeccao(config, username, name, user_role):
         # --- Tabela de pendências DOC ---
         with st.expander("Clientes com Pendência de Documentos"):
             # Filtrar apenas os clientes com status PENDENCIA DOC
-            df_pendencias = df_exibicao[df_exibicao["STATUS_ABERTURA"] == "PENDENCIA DOC"].copy()
+            df_pendencias = df_exibicao[df_exibicao["STATUS_ABERTURA"] == "PENDÊNCIA DOC"].copy()
 
             # Selecionar colunas para exibição
             colunas_pendencias = ["DATA_BASE", "CNPJ", "NOME_CLIENTE", "PENDENCIAS"]
