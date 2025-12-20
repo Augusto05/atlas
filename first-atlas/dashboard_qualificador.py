@@ -238,6 +238,8 @@ def exibir_dashboard(user_config: dict, authenticator):
         media_por_dia = qtd_qualificadas / dias_passados
     st.sidebar.text_input("Média por dia", value=f"{media_por_dia:.2f}")  # agora editável
 
+    # (removido) Projeção adicional em reais — projeção será calculada automaticamente
+
     st.subheader("Resumo Rápido")
     col1, col2, col3, col4, col5, col6 = st.columns([1,1,1,1,1,2])
     col1.metric("Contas qualificadas", f"{qtd_qualificadas}")
@@ -459,7 +461,40 @@ def exibir_dashboard(user_config: dict, authenticator):
         df_ranking = df_filtrado.groupby("CONSULTOR").apply(resumo_consultor)
         df_ranking = df_ranking.sort_values(by="QUALIFICADAS", ascending=False).reset_index()
         df_ranking.index = range(1, len(df_ranking) + 1)
-        df_ranking["FATURAMENTO"] = df_ranking["FATURAMENTO"].map(lambda x: f"{x:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
+
+        # Normaliza FATURAMENTO como numérico para cálculos
+        df_ranking["FATURAMENTO_NUM"] = pd.to_numeric(df_ranking.get("FATURAMENTO", 0), errors="coerce").fillna(0.0)
+
+        # Calcula ticket médio (faturamento sobre aprovadas), comissão atual (4%) e projeção
+        df_ranking["TICKET_MEDIO_NUM"] = df_ranking.apply(
+            lambda r: (r["FATURAMENTO_NUM"] / r["QUALIFICADAS"]) if (r.get("QUALIFICADAS") and r["QUALIFICADAS"] > 0) else 0.0,
+            axis=1
+        )
+        df_ranking["COMISSAO_ATUAL_NUM"] = df_ranking["FATURAMENTO_NUM"] * 0.04
+        # Projeção em reais: estimativa por consultor = projeção de qualificadas (PDU) * ticket médio
+        def projetar_faturamento_por_linha(row):
+            qtd_qual = int(row.get("QUALIFICADAS", 0))
+            qtd_saldo = int(row.get("SALDO_MEDIO", 0))
+            proj_qtd = calcular_projecao(qtd_qual, date.today(), FERIADOS_FIXOS, qtd_saldo_medio=qtd_saldo, role=("master" if role == "master" else "qualificador"))
+            ticket = float(row.get("TICKET_MEDIO_NUM", 0.0))
+            return float(proj_qtd) * ticket
+
+        df_ranking["FATURAMENTO_PROJETADO_NUM"] = df_ranking.apply(projetar_faturamento_por_linha, axis=1)
+        df_ranking["COMISSAO_PROJETADA_NUM"] = df_ranking["FATURAMENTO_PROJETADO_NUM"] * 0.04
+
+        # Formatação brasileira (1.234,56)
+        def br_fmt(x):
+            return f"{x:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+        df_ranking["FATURAMENTO"] = df_ranking["FATURAMENTO_NUM"].round(2).map(br_fmt)
+        df_ranking["TICKET_MEDIO"] = df_ranking["TICKET_MEDIO_NUM"].round(2).map(br_fmt)
+        df_ranking["COMISSAO_ATUAL"] = df_ranking["COMISSAO_ATUAL_NUM"].round(2).map(br_fmt)
+        df_ranking["FATURAMENTO_PROJETADO"] = df_ranking["FATURAMENTO_PROJETADO_NUM"].round(2).map(br_fmt)
+        df_ranking["COMISSAO_PROJETADA"] = df_ranking["COMISSAO_PROJETADA_NUM"].round(2).map(br_fmt)
+
+        # Colunas para exibir (mantém ordem razoável)
+        display_cols = ["CONSULTOR", "QUALIFICADAS", "SALDO_MEDIO", "PROMESSAS", "FATURAMENTO", "TICKET_MEDIO", "COMISSAO_ATUAL", "FATURAMENTO_PROJETADO", "COMISSAO_PROJETADA"]
+        df_ranking = df_ranking[[c for c in display_cols if c in df_ranking.columns]]
 
         st.subheader("Ranking")
         st.dataframe(df_ranking, use_container_width=True)
