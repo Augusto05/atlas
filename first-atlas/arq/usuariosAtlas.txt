@@ -1,0 +1,267 @@
+credentials:
+  usernames:
+    augustobueno.b4b:
+      email: augustoalmeida@b4bcapital.com.br
+      name: Augusto Bueno
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: master   
+    andreybizao.b4b:
+      email: andreybizao@b4bcapital.com.br
+      name: Andrey Bizao
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: master   
+    wesleyfaian.b4b:
+      email: wesley@b4bcapital.com.br
+      name: Wesley Faian
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: master 
+    leticiapena.b4b:
+      email: leticiapena@b4bcapital.com.br
+      name: Leticia Viviane Carvalho da Pena
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: master     
+    felipesilva.b4b:
+      email: felipesilva@b4bcapital.com.br
+      name: Felipe Luis Silva
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: master     
+    hellenanunciacao.b4b:
+      email: hellenanunciacao@b4bcapital.com.br
+      name: Hellen Geovana Silva Anunciacao
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: master
+    lucassantos.b4b:
+      email: lucassantos@b4bcapital.com.br
+      name: Lucas Matheus de Almeida Costa Santos
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: master
+    juliovilchez.b4b:
+      email: julio.vilchez@b4bcapital.com.br
+      name: Julio Goncalves Zarate Vilchez
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: master
+
+    aghata.santos:
+      email: aghata.santos@b4bcapital.com.br
+      name: Aghata Alves dos Santos
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: qualificador
+    joao.oliveira:
+      email: joao.oliveira@b4bcapital.com.br
+      name: Joao Pedro Mayer Ribeiro Oliveira
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: qualificador
+    jose.mattos:
+      email: jose.mattos@b4bcapital.com.br
+      name: Jose Guilherme de Abreu Mattos
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: qualificador
+    luana.paulo:
+      email: luana.paulo@b4bcapital.com.br
+      name: Luana Duarte Paulo
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: qualificador
+    ricardo.caetano:
+      email: ricardo.caetano@b4bcapital.com.br
+      name: Ricardo Cirino Mendes Caetano
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: qualificador
+    thiago.barboza:
+      email: thiago.barboza@b4bcapital.com.br
+      name: Thiago da Silva Barboza
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: qualificador
+    raphael.jacintho:
+      email: raphael.jacintho@b4bcapital.com.br
+      name: Raphael Ferreira Jacintho
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: qualificador
+    thaila.cardoso:
+      email: thaila.cardoso@b4bcapital.com.br
+      name: Thaila Jaqueline Cardoso
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: qualificador
+    leonardo.pereira:
+      email: leonardo.pereira@b4bcapital.com.br
+      name: Leonardo Ortelan Pereira
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: qualificador
+    thayssa.trabuco:
+      email: thayssatrabuco@b4bcapital.com.br
+      name: Thayssa Gasparoto Trabuco
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: qualificador
+    alice.teixeira:
+      email: aliceteixeira@b4bcapital.com.br
+      name: Alice de Paiva Teixeira
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: qualificador
+    lucas.machado:
+      email: lucasmachado@b4bcapital.com.br
+      name: Lucas Henrique Zuccari Machado
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: qualificador
+    
+
+francianecordeiro:
+      email: francianecordeiro@b4bcapital.com.br
+      name: Franciane Roberta Cordeiro
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: operador  
+      equipe: URA
+    mariasilva:
+      email: mariasilva@b4bcapital.com.br
+      name: Maria Luisa Ribeiro da Silva
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: operador
+      equipe: URA  
+    giovanasilva:
+      email: giovanasilva@b4bcapital.com.br
+      name: Giovana Vitoria da Silva
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: operador 
+      equipe: URA 
+    sofiadomingues:
+      email: sofiadomingues@b4bcapital.com.br
+      name: Sofia Helena Vieira Domingues
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: operador  
+      equipe: URA
+    miriamfranzoi:
+      email: miriamfranzoi@b4bcapital.com.br
+      name: Miriam Helena Franzoi
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: operador  
+      equipe: URA
+    pablolopes:
+      email: pablolopes@b4bcapital.com.br
+      name: Pablo Ricardo Camilo Lopes
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: operador
+      equipe: URA
+    cauamiedes:
+      email: cauamiedes@b4bcapital.com.br
+      name: Caua Miedes do Espirito Santo
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: operador
+      equipe: URA
+    alinegaldino:
+      email: alinegaldino@b4bcapital.com.br
+      name: Aline Galdino
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: operador
+      equipe: URA
+    jamilysantos:
+      email: jamilysantos@b4bcapital.com.br
+      name: Jamily de Lima Alves dos Santos
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: operador
+      equipe: URA
+    marcelosanto:
+      email: marcelosanto@b4bcapital.com.br
+      name: Marcelo Sanches Espirito Santo
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: operador
+      equipe: URA
+    yarasantos:
+      email: yarasantos@b4bcapital.com.br
+      name: Yara Galicia de Andrade dos Santos
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: operador
+      equipe: URA
+    arturleite:
+      email: arturleite@b4bcapital.com.br
+      name: Artur Cruz Leite
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: operador
+      equipe: URA
+    carlakauffmann:
+      email: carlakauffmann@b4bcapital.com.br
+      name: Carla Cristina de Lima Kauffmann
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: operador
+      equipe: URA
+    laviniabueno:
+      email: laviniabueno@b4bcapital.com.br
+      name: Lavinia Guimaraes Bueno
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: operador
+      equipe: URA
+
+    marianabarboza:
+      email: marianabarboza@b4bcapital.com.br
+      name: Mariana Gabriela Ferreira Barboza
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: operador 
+      equipe: DISCADOR
+    cristianeandrade:
+      email: cristianeandrade@b4bcapital.com.br
+      name: Cristiane dos Santos Andrade
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: operador
+      equipe: DISCADOR    
+    sophiapigente:
+      email: sophiapigente@b4bcapital.com.br
+      name: Sophia Bagagi Pigente
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: operador 
+      equipe: URA
+    felipemartelo:
+      email: felipemartelo@b4bcapital.com.br
+      name: Felipe Arantes Martelo
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: operador
+      equipe: DISCADOR 
+    tauaniandrade:
+      email: tauaniandrade@b4bcapital.com.br
+      name: Tauani Santos de Andrade
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: operador
+      equipe: DISCADOR
+    anarodrigues:
+      email: anarodrigues@b4bcapital.com.br
+      name: Ana Beatriz Rodrigues
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: operador
+      equipe: DISCADOR
+    brunasantos:
+      email: brunasantos@b4bcapital.com.br
+      name: Bruna Tobias Dos Santos
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: operador
+      equipe: DISCADOR
+    julialopes:
+      email: julialopes@b4bcapital.com.br
+      name: Julia do Nascimento Lopes
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: operador
+      equipe: DISCADOR
+    anasouza:
+      email: anasouza@b4bcapital.com.br
+      name: Ana Clara Sabio de Souza
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: operador
+      equipe: DISCADOR
+    everlycaldas:
+      email: everlycaldas@b4bcapital.com.br
+      name: Everly Gomes Caldas
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: operador
+      equipe: DISCADOR
+    gleicygomes:
+      email: gleicygomes@b4bcapital.com.br
+      name: Gleicy Ferreira Gomes
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: operador
+      equipe: DISCADOR
+    otavioavila:
+      email: otavioavila@b4bcapital.com.br
+      name: Otavio Henrique Silva de Avila
+      password: '$2b$12$NNKjt1lLP2CKrvEJwg2CeefaLq4m1hsK8UCFAkQ0KkSaKJnDfVz82'
+      role: operador
+      equipe: DISCADOR
+
+cookie:
+  name: comissao_app
+  key: abcdefghijklmnop
+  expiry_days: 30
